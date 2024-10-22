@@ -186,24 +186,128 @@ separator
 
 
 
-# Accepting licenses for linux-firmware
-echo -e "${CC_TEXT}Updating /etc/portage/package.license to accept licenses for linux-firmware...${CC_RESET}"
+# # Accepting licenses for linux-firmware
+# echo -e "${CC_TEXT}Updating /etc/portage/package.license to accept licenses for linux-firmware and intel-microcode...${CC_RESET}"
 
-# Ensure the directory for package.license exists
-mkdir -p /etc/portage
+# # Ensure the directory for package.license exists
+# mkdir -p /etc/portage
 
-# Append the required license information to package.license
-cat <<EOL >> /etc/portage/package.license
-# Accept the license for linux-firmware
-sys-kernel/linux-firmware linux-fw-redistributable
+# # Append the required license information to package.license
+# cat <<EOL >> /etc/portage/package.license
+# # Accept the license for linux-firmware
+# sys-kernel/linux-firmware linux-fw-redistributable
 
-# Accept any license that permits redistribution for linux-firmware
-sys-kernel/linux-firmware @BINARY-REDISTRIBUTABLE
-EOL
+# # Accept any license that permits redistribution for linux-firmware
+# sys-kernel/linux-firmware @BINARY-REDISTRIBUTABLE
+
+# # Intel Microcode
+# sys-firmware/intel-microcode intel-ucode
+# EOL
+
+# if [ $? -ne 0 ]; then
+#     echo
+#     echo -e "${CC_ERROR}Failed to update /etc/portage/package.license. Exiting.${CC_RESET}"
+#     echo
+#     exit 1
+# fi
+# separator
+
+
+
+
+# Installing linux-firmware and intel-microcode
+echo -e "${CC_TEXT}Installing linux-firmware and intel-microcode...${CC_RESET}"
+emerge --ask sys-kernel/linux-firmware sys-firmware/intel-microcode
+if [ $? -ne 0 ]; then
+    echo
+    echo -e "${CC_ERROR}Failed to install linux-firmware or intel-microcode. Exiting.${CC_RESET}"
+    echo
+    exit 1
+fi
+separator
+
+
+
+
+# Installing installkernel
+echo -e "${CC_TEXT}Installing installkernel...${CC_RESET}"
+emerge --ask sys-kernel/installkernel
+if [ $? -ne 0 ]; then
+    echo
+    echo -e "${CC_ERROR}Failed to install installkernel. Exiting.${CC_RESET}"
+    echo
+    exit 1
+fi
+separator
+
+
+
+
+# Creating /etc/portage/package.use/installkernel and setting USE flag for installkernel
+echo -e "${CC_TEXT}Creating /etc/portage/package.use/installkernel and setting USE flag for installkernel...${CC_RESET}"
+
+# Ensure the directory for package.use exists
+mkdir -p /etc/portage/package.use
+
+# Write the required entry to the file
+echo "sys-kernel/installkernel grub dracut" > /etc/portage/package.use/installkernel
 
 if [ $? -ne 0 ]; then
     echo
-    echo -e "${CC_ERROR}Failed to update /etc/portage/package.license. Exiting.${CC_RESET}"
+    echo -e "${CC_ERROR}Failed to create /etc/portage/package.use/installkernel. Exiting.${CC_RESET}"
+    echo
+    exit 1
+fi
+separator
+
+
+
+
+# Prompting user for kernel installation option
+echo -e "${CC_TEXT}Would you like to install the kernel from source or use a precompiled image?${CC_RESET}"
+echo -e "${CC_TEXT}1) Build a kernel with Gentoo patches from source (sys-kernel/gentoo-kernel)${CC_RESET}"
+echo -e "${CC_TEXT}2) Install precompiled kernel images (sys-kernel/gentoo-kernel-bin)${CC_RESET}"
+
+# User input for selection
+read -p "$(echo -e "${CC_TEXT}Enter your choice (1 or 2): ${CC_RESET}")" kernel_choice
+
+if [[ "$kernel_choice" == "1" ]]; then
+    # Installing gentoo-kernel from source
+    echo -e "${CC_TEXT}Installing gentoo-kernel from source...${CC_RESET}"
+    emerge --ask sys-kernel/gentoo-kernel
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to install gentoo-kernel. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+
+elif [[ "$kernel_choice" == "2" ]]; then
+    # Installing gentoo-kernel-bin (precompiled)
+    echo -e "${CC_TEXT}Installing gentoo-kernel-bin (precompiled kernel image)...${CC_RESET}"
+    emerge --ask sys-kernel/gentoo-kernel-bin
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to install gentoo-kernel-bin. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+
+else
+    echo -e "${CC_ERROR}Invalid choice. Please enter 1 or 2. Exiting.${CC_RESET}"
+    exit 1
+fi
+separator
+
+
+
+
+# Cleaning up unnecessary dependencies
+echo -e "${CC_TEXT}Cleaning up unnecessary dependencies with emerge --depclean...${CC_RESET}"
+emerge --ask --depclean
+if [ $? -ne 0 ]; then
+    echo
+    echo -e "${CC_ERROR}Failed to clean up dependencies. Exiting.${CC_RESET}"
     echo
     exit 1
 fi

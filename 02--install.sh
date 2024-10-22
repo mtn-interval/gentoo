@@ -183,7 +183,7 @@ echo -e "${CC_TEXT}Formatting /dev/${disk}3 as XFS (root partition)...${CC_RESET
 mkfs.xfs /dev/${disk}3
 if [ $? -ne 0 ]; then
     echo
-    echo -e "${CC_ERROR}PFailed to format /dev/${disk}3. Exiting.${CC_RESET}"
+    echo -e "${CC_ERROR}Failed to format /dev/${disk}3. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -296,6 +296,7 @@ GENTOO_MIRRORS="https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/"
 VIDEO_CARDS="intel"
 INPUT_DEVICES="libinput"
 CPU_FLAGS_X86="mmx mmxext sse sse2 sse3 ssse3"
+ACCEPT_LICENSE="*"
 EOL
 
 if [ $? -ne 0 ]; then
