@@ -310,6 +310,20 @@ separator
 
 
 
+# Prompt user to make changes to make.conf
+read -p "$(echo -e "${CC_TEXT}Do you want to make any changes to /mnt/gentoo/etc/portage/make.conf? (y/n): ${CC_RESET}")" change_conf
+
+if [[ "$change_conf" =~ ^[Yy]$ ]]; then
+    echo -e "${CC_TEXT}Opening /mnt/gentoo/etc/portage/make.conf in nano...${CC_RESET}"
+    nano /mnt/gentoo/etc/portage/make.conf
+else
+    echo -e "${CC_TEXT}No changes made to make.conf.${CC_RESET}"
+fi
+separator
+
+
+
+
 # Copy DNS info
 echo -e "${CC_TEXT}Copying DNS information to /mnt/gentoo/etc/...${CC_RESET}"
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
