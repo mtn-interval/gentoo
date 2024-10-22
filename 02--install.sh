@@ -340,7 +340,7 @@ separator
 
 # Copy necessary install scripts to the new system
 echo -e "${CC_TEXT}Copying installation scripts to /mnt/gentoo...${CC_RESET}"
-cp *--*.sh /mnt/gentoo/
+cp *--*.sh /mnt/gentoo/root
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to copy installation scripts. Exiting.${CC_RESET}"
@@ -351,7 +351,7 @@ separator
 
 # Change root into the new environment and run the chroot script
 echo -e "${CC_TEXT}Entering the chroot environment and executing 03--chroot.sh...${CC_RESET}"
-arch-chroot /mnt/gentoo /mnt/gentoo/03--chroot.sh
+arch-chroot /mnt/gentoo /root/03--chroot.sh
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to chroot into the new environment. Exiting.${CC_RESET}"
