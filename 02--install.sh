@@ -5,6 +5,7 @@
 # CC_TEXT codes for output
 CC_HEADER='\033[1;35;44m'   # Bold Magenta on Blue background - To mark sections or major steps in the script.
 CC_TEXT='\033[1;34;40m'     # Bold Blue on Black background - For general text, prompts, and success messages.
+CC_ERROR='\033[1;35;40m'     # Bold Magenta on Black background - For error messages.
 CC_RESET='\033[0m'          # Reset CC_TEXT - To reset color coding.
 
 
@@ -58,7 +59,7 @@ while true; do
     if lsblk -d -n -o NAME | grep -qw "$disk"; then
         echo
         echo -e "${CC_TEXT}Valid disk selected: /dev/$disk${CC_RESET}"
-        break  # Exit the loop if the disk is valid
+        break  # Break the loop if the disk is valid
     else
         echo
         echo -e "${CC_TEXT}Invalid disk selected: $disk. Please try again.${CC_RESET}"
@@ -80,7 +81,7 @@ while true; do
             ;;
         n|N)
             echo
-            echo -e "${CC_TEXT}Exiting without making any changes.${CC_RESET}"
+            echo -e "${CC_ERROR}Exiting without making any changes.${CC_RESET}"
             echo
             exit 1
             ;;
@@ -115,7 +116,7 @@ else
         wipefs -fa "/dev/$partition"  # Correct usage with full path for each partition
         if [ $? -ne 0 ]; then
             echo
-            echo -e "${CC_TEXT}Failed to wipe /dev/$partition. Exiting.${CC_RESET}"
+            echo -e "${CC_ERROR}Failed to wipe /dev/$partition. Exiting.${CC_RESET}"
             echo
             exit 1
         fi
@@ -156,7 +157,7 @@ echo w      # Write changes
 
 if [ $? -ne 0 ]; then
     echo
-    echo -e "${CC_TEXT}Partitioning failed on /dev/$disk. Exiting.${CC_RESET}"
+    echo -e "${CC_ERROR}Partitioning failed on /dev/$disk. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -173,7 +174,7 @@ echo -e "${CC_TEXT}Formatting /dev/${disk}1 as XFS (boot partition)...${CC_RESET
 mkfs.xfs /dev/${disk}1
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to format /dev/${disk}1. Exiting."
+    echo -e "${CC_ERROR}PFailed to format /dev/${disk}1. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -182,7 +183,7 @@ echo -e "${CC_TEXT}Formatting /dev/${disk}3 as XFS (root partition)...${CC_RESET
 mkfs.xfs /dev/${disk}3
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to format /dev/${disk}3. Exiting."
+    echo -e "${CC_ERROR}PFailed to format /dev/${disk}3. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -196,7 +197,7 @@ echo -e "${CC_TEXT}Setting up and activating swap on /dev/${disk}2...${CC_RESET}
 mkswap /dev/${disk}2
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to set up swap on /dev/${disk}2. Exiting."
+    echo -e "${CC_ERROR}Failed to set up swap on /dev/${disk}2. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -204,7 +205,7 @@ fi
 swapon /dev/${disk}2
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to activate swap on /dev/${disk}2. Exiting."
+    echo -e "${CC_ERROR}Failed to activate swap on /dev/${disk}2. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -219,7 +220,7 @@ mkdir -p /mnt/gentoo
 mount /dev/${disk}3 /mnt/gentoo
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to mount /dev/${disk}3. Exiting."
+    echo -e "${CC_ERROR}Failed to mount /dev/${disk}3. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -229,7 +230,7 @@ mkdir -p /mnt/gentoo/boot
 mount /dev/${disk}1 /mnt/gentoo/boot
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to mount /dev/${disk}1. Exiting."
+    echo -e "${CC_ERROR}Failed to mount /dev/${disk}1. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -243,7 +244,7 @@ echo -e "${CC_TEXT}Synchronizing the system clock using chronyd...${CC_RESET}"
 chronyd -q
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to synchronize the system clock. Exiting."
+    echo -e "${CC_ERROR}Failed to synchronize the system clock. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -271,7 +272,7 @@ cd /mnt/gentoo
 tar xpf stage3*
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to unpack the Stage 3 tarball. Exiting."
+    echo -e "${CC_ERROR}Failed to unpack the Stage 3 tarball. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -299,7 +300,7 @@ EOL
 
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to configure /mnt/gentoo/etc/portage/make.conf. Exiting."
+    echo -e "${CC_ERROR}Failed to configure /mnt/gentoo/etc/portage/make.conf. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -313,7 +314,7 @@ echo -e "${CC_TEXT}Copying DNS information to /mnt/gentoo/etc/...${CC_RESET}"
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to copy DNS information. Exiting."
+    echo -e "${CC_ERROR}Failed to copy DNS information. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -327,7 +328,7 @@ echo -e "${CC_TEXT}Copying installation scripts to /mnt/gentoo...${CC_RESET}"
 cp *--*.sh /mnt/gentoo/
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to copy installation scripts. Exiting."
+    echo -e "${CC_ERROR}Failed to copy installation scripts. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
@@ -338,7 +339,7 @@ echo -e "${CC_TEXT}Entering the chroot environment and executing 03--chroot.sh..
 arch-chroot /mnt/gentoo /mnt/gentoo/03--chroot.sh
 if [ $? -ne 0 ]; then
     echo
-    echo "Failed to chroot into the new environment. Exiting."
+    echo -e "${CC_ERROR}Failed to chroot into the new environment. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
