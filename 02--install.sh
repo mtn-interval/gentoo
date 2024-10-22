@@ -30,7 +30,7 @@ separator() {
 
 
 # Script header
-echo -e "${CC_HEADER}────── Install System Core  v1.00 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Install System Core  v1.01 ──────${CC_RESET}"
 echo
 pause
 
@@ -340,6 +340,7 @@ separator
 
 # Copy necessary install scripts to the new system
 echo -e "${CC_TEXT}Copying installation scripts to /mnt/gentoo...${CC_RESET}"
+cd ~
 cp *--*.sh /mnt/gentoo/
 if [ $? -ne 0 ]; then
     echo
