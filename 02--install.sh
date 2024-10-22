@@ -340,7 +340,7 @@ separator
 
 # Copy necessary install scripts to the new system
 echo -e "${CC_TEXT}Copying installation scripts to /mnt/gentoo...${CC_RESET}"
-cp *--*.sh /mnt/gentoo/root
+cp *--*.sh /mnt/gentoo/
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to copy installation scripts. Exiting.${CC_RESET}"
