@@ -13,7 +13,7 @@ CC_RESET='\033[0m'          # Reset CC_TEXT - To reset color coding.
 
 # Function to pause the script
 pause() {
-    sleep 1
+    sleep 3
 }
 
 
@@ -21,9 +21,10 @@ pause() {
 
 # Define text separator style
 separator() {
-	echo -e "${CC_TEXT}│${CC_RESET}"
-	echo -e "${CC_TEXT}│${CC_RESET}"
-	echo -e "${CC_TEXT}│${CC_RESET}"
+    echo -e "${CC_TEXT}│${CC_RESET}"
+    echo -e "${CC_TEXT}│${CC_RESET}"
+    echo -e "${CC_TEXT}│${CC_RESET}"
+    pause
 }
 
 
@@ -339,9 +340,9 @@ separator
 
 
 # Copy necessary install scripts to the new system
-echo -e "${CC_TEXT}Copying installation scripts to /mnt/gentoo...${CC_RESET}"
+echo -e "${CC_TEXT}Copying installation scripts to /mnt/gentoo/root...${CC_RESET}"
 cd ~
-cp *--*.sh /mnt/gentoo/
+cp *--*.sh /mnt/gentoo/root
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to copy installation scripts. Exiting.${CC_RESET}"
@@ -352,7 +353,7 @@ separator
 
 # Change root into the new environment and run the chroot script
 echo -e "${CC_TEXT}Entering the chroot environment and executing 03--chroot.sh...${CC_RESET}"
-arch-chroot /mnt/gentoo/03--chroot.sh
+arch-chroot /mnt/gentoo ~/03--chroot.sh
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to chroot into the new environment. Exiting.${CC_RESET}"

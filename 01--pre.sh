@@ -13,7 +13,7 @@ CC_RESET='\033[0m'          # Reset CC_TEXT - To reset color coding.
 
 # Function to pause the script
 pause() {
-    sleep 1
+    sleep 3
 }
 
 
@@ -24,6 +24,7 @@ separator() {
     echo -e "${CC_TEXT}│${CC_RESET}"
     echo -e "${CC_TEXT}│${CC_RESET}"
     echo -e "${CC_TEXT}│${CC_RESET}"
+    pause
 }
 
 
