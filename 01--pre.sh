@@ -102,9 +102,6 @@ if [[ -f 02--install.sh ]]; then
 
     # Prompt for user to press Enter to continue
     echo -e "${CC_TEXT}The system is ready to proceed.${CC_RESET}"
-    read -p "$(echo -e "${CC_TEXT}Press Enter to continue with the install script...${CC_RESET}")"
-    
-    echo
     echo -e "${CC_TEXT}Running 02--install.sh...${CC_RESET}"
     separator
     ./02--install.sh
