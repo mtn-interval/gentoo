@@ -295,9 +295,10 @@ MAKEOPTS="-j1 -l2"
 CHOST="x86_64-pc-linux-gnu"
 GENTOO_MIRRORS="https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/"
 VIDEO_CARDS="intel"
-INPUT_DEVICES="libinput"
+INPUT_DEVICES="libinput synaptics"
 CPU_FLAGS_X86="mmx mmxext sse sse2 sse3 ssse3"
 ACCEPT_LICENSE="*"
+USE="X -gnome -kde -xfce -lxde -lxqt -mate -cinnamon -cde -bluetooth"
 EOL
 
 if [ $? -ne 0 ]; then
