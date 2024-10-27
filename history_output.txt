@@ -1,0 +1,480 @@
+    1  lsblk 
+    2  emerge-webrsync 
+    3  emerge --sync
+    4  eselect profile list
+    5  eselect profile list | more
+    6  emerge --ask --verbose --update --deep --changed-use @world
+    7  emerge --depclean
+    8  exit
+    9  emerge-webrsync 
+   10  emerge --sync
+   11  eselect profile list
+   12  emerge --ask --verbose --update --deep --changed-use @world
+   13  emerge --ask --verbose ufed
+   14  ufed
+   15  nano /etc/portage/make.conf 
+   16  emerge --ask --verbose --update --deep --newuse @world
+   17  emerge --ask --verbose --update --deep --changed-use @world
+   18  emerge --depclean
+   19  emerge --ask linux-firmware intel-microcode
+   20  grub-mkconfig -o /boot/grub/grub.cfg
+   21  emerge --ask --verbose installkernel
+   22  nano /etc/portage/package.use/installkernel
+   23  emerge --ask --verbose installkernel
+   24  emerge --ask sys-kernel/gentoo-sources
+   25  eselect kernel list
+   26  eselect kernel set 1
+   27  ls -l /usr/src/linux
+   28  emerge --ask sys-apps/pciutils
+   29  lspci
+   30  lspci | less
+   31  lsmod
+   32  lsmod | less
+   33  cd /usr/src/linux
+   34  make localmodconfig
+   35  make localmodconfig
+   36  make localmodconfig
+   37  cat .config 
+   38  rm -f .config 
+   39  make localmodconfig
+   40  make nconfig
+   41  make && make modules_install
+   42  make install
+   43  blkid
+   44  nano /etc/fstab
+   45  echo tux > /etc/hostname
+   46  echo thinkpad > /etc/hostname
+   47  cat /etc/hostname 
+   48  emerge --ask --noreplace net-misc/netifrc
+   49  nano /etc/conf.d/net
+   50  ip link
+   51  nano /etc/conf.d/net
+   52  ip link
+   53  cd /etc/init.d
+   54  ln -s net.lo net.enp0s25
+   55  rc-update add net.enp0s25 default
+   56  nano /etc/hosts
+   57  passwd
+   58  cat /etc/passwd 
+   59  nano /etc/rc.conf 
+   60  nano /etc/conf.d/keymaps 
+   61  ls /usr/share/keymaps/
+   62  ls /usr/share/keymaps/include/
+   63  cd ..
+   64  cd ..
+   65  nano /etc/conf.d/keymaps 
+   66  nano /etc/conf.d/hwclock
+   67  date
+   68  ls -l /usr/share/zoneinfo
+   69  nano /etc/conf.d/hwclock
+   70  hwclock --help
+   71  hwclock --help | more
+   72  hwclock -w
+   73  date
+   74  nano /etc/conf.d/hwclock
+   75  hwclock -w
+   76  date
+   77  hwclock --systohc
+   78  date
+   79  nano /etc/profile
+   80  emerge --ask timezone-data
+   81  cat /usr/share/zoneinfo/Europe/Lisbon | tail -n 1
+   82  nano /etc/env.d/00local
+   83  env-update && source /etc/profile
+   84  date
+   85  emerge --ask --unmerge sys-libs/timezone-data
+   86  emerge --ask app-admin/sysklogd
+   87  rc-update add sysklogd default
+   88  emerge --ask 
+   89  rc-update add cronie default
+   90  emerge --ask sys-apps/mlocate
+   91  emerge --ask bash-completion
+   92  emerge --ask chronyd e2fsprogs
+   93  emerge --ask chrony e2fsprogs
+   94  rc-update add chronyd default
+   95  emerge --ask io-scheduler-udev-rules
+   96  emerge --ask net-misc/dhcpcd
+   97  emerge --ask iw wpa_supplicant
+   98  emerge --ask --verbose grub
+   99  grub-install /dev/sda
+  100  grub-mkconfig -o /boot/grub/grub.cfg 
+  101  exit
+  102  sudo
+  103  emerge --ask --quiet-build=y install sudo
+  104  emerge --ask --quiet-build=y sudo
+  105  visudo 
+  106  exit
+  107  su
+  108  exit
+  109  loadkeys pt-latin1
+  110  useradd -m -G users,wheel,audio,video,usb -s /bin/bash eduardo
+  111  passwd eduardo
+  112  su
+  113  logout
+  114  ls
+  115  ls -a
+  116  cd ..
+  117  ls
+  118  rm stage3-amd64-musl-20241020T170324Z.tar.xz 
+  119  ls
+  120  htop
+  121  lynx duckduckgo.com
+  122  ip link
+  123  ping google.com
+  124  clear
+  125  ip link
+  126  logout
+  127  emerge sys-boot/grub
+  128  grub-install /dev/sda
+  129  nano /etc/default/grub 
+  130  grub-mkconfig -o /boot/grub/grub.cfg
+  131  reboot
+  132  loadkeys pt-latin1
+  133  nano /etc/fstab 
+  134  grub-install /dev/sda
+  135  grub-mkconfig -o /boot/grub/grub.cfg
+  136  nano /boot/grub/grub.cfg 
+  137  reboot
+  138  loadkeys pt-latin1
+  139  nano /etc/fstab 
+  140  grub-install /dev/sda
+  141  ls /boot/grub/
+  142  nano /boot/grub/grub.cfg 
+  143  ls /boot/grub/
+  144  cd /boot/grub/
+  145  ls
+  146  rm grub.cfg 
+  147  ls
+  148  nano /etc/default/grub 
+  149  ls
+  150  grub-mkconfig -o /boot/grub/grub.cfg
+  151  ls
+  152  nano grub.cfg
+  153  reboot
+  154  loadkeys pt-latin1
+  155  cd /usr/src/linux-6.6.52-gentoo/
+  156  ls
+  157  make install
+  158  nano /boot/grub/grub.cfg
+  159  reboot
+  160  ping google.com
+  161  htop
+  162  htop
+  163  reboot
+  164  loadkeys pt-latin1
+  165  cd /usr/src/linux-6.6.52-gentoo/
+  166  ls
+  167  a
+  168  la
+  169  ls -a
+  170  cat .config
+  171  lsblk 
+  172  cd
+  173  ls
+  174  ls -a
+  175  nano .config/
+  176  cd .config/
+  177  ls
+  178  cd ..
+  179  ls
+  180  mkdir usb
+  181  ls
+  182  cd /usr/src/linux-6.6.52-gentoo/
+  183  mount /dev/sdb3 ~/usb/
+  184  cd
+  185  cd usb
+  186  ls
+  187  cd /usr/src/linux-6.6.52-gentoo/
+  188  cp .config ~/usb/
+  189  umount ~/usb 
+  190  lsblk 
+  191  mount /dev/sdb2 ~/usb/
+  192  lsblk 
+  193  mount /dev/sdb1 ~/usb/
+  194  emerge --quiet-build=y vsftpd
+  195  mkdir ~/ftp
+  196  nano /bin/vsftpd 
+  197  clear
+  198  vsftpd --help
+  199  vsftpd
+  200  nano /usr/ls
+  201  clear
+  202  emerge --quiet-build=y --ask vsftpd
+  203  equery list '*'
+  204  qlist -I
+  205  qlist -I | grep vsftpd
+  206  emerge --ask --depclean vsftpd
+  207  emerge --ask --depclean 
+  208  emerge --ask --update --deep --newuse @world
+  209  nano /etc/portage/make.conf 
+  210  htop
+  211  nano /etc/conf.d/keymaps 
+  212  reboot
+  213  ls
+  214  htop
+  215  clear
+  216  emerge --sync
+  217  emerge git
+  218  reboot
+  219  emerge dev-vcs/git
+  220  git config --global user.name "Mountain Interval"
+  221  git config --global user.email "mtn.interval@proton.me"
+  222  ls
+  223  rm -r usb/
+  224  ls
+  225  mkdir git
+  226  cd git
+  227  ls
+  228  mkdir dev
+  229  ls
+  230  cd dev/
+  231  git init
+  232  cd ..
+  233  ls
+  234  rm -r dev
+  235  mkdir dev
+  236  cd dev/
+  237  git clone https://github.com/mtn-interval/gentoo.git
+  238  git clone https://github.com/mtn.interval/gentoo.git
+  239  git clone https://github.com/mtn-interval/main/gentoo.git
+  240  ping google.com
+  241  git clone https://github.com/mtn-interval/gentoo.git
+  242  ping github.com
+  243  ping google.com
+  244  nano /etc/resolv.conf 
+  245  ping google.com
+  246  ping google.com
+  247  /etc/init.d/net.wls3 restart
+  248  ping google.com
+  249  nano /etc/resolv.conf 
+  250  ip addr show
+  251  nano /etc/conf.d/net
+  252  /etc/init.d/net.wls3 restart
+  253  ping google.com
+  254  nano /etc/resolv.conf 
+  255  /etc/init.d/net.wls3 restart
+  256  nano /etc/resolv.conf 
+  257  ping google.com
+  258  nano /etc/resolv.conf 
+  259  reboot
+  260  ping google.com
+  261  nano /etc/conf.d/net
+  262  /etc/init.d/net.wls3 restart
+  263  ping google.com
+  264  ping 8.8.8.8
+  265  ip addr show
+  266  ip route
+  267  ip addr show wls3
+  268  iwconfig wls3
+  269  traceroute 8.8.8.8
+  270  nano /etc/conf.d/net
+  271  ifconfig enp0s25 down
+  272  ping 8.8.8.8
+  273  cd git/dev/
+  274  ls -a
+  275  git clone https://github.com/mtn-interval/gentoo.git
+  276  ls
+  277  cd gentoo/
+  278  ls
+  279  cp /usr/src/linux-6.6.52-gentoo/.config ~/git/dev/gentoo/config_current
+  280  git add .
+  281  git commit -m "update"
+  282  git push origin main
+  283  cd /usr/src/linux-6.6.52-gentoo/
+  284  ls
+  285  ls -a
+  286  history
+  287  history | more
+  288  history | more
+  289  make nconfig
+  290  emerge dev-util/dwarves
+  291  USE="debug" emerge pahole
+  292  pahole -version
+  293  pahole --version
+  294  make nconfig
+  295  nano .config
+  296  make nconfig
+  297  make -s && make -s modules_install
+  298  make --help
+  299  make && make modules_install
+  300  make V=1 && make modules_install V=1
+  301  make && make modules_install
+  302  emerge lz4
+  303  emerge app-arch/lz4
+  304  make && make modules_install
+  305  make && make modules_install
+  306  make install
+  307  reboot
+  308  exit
+  309  ls
+  310  htop
+  311  clear
+  312  htop
+  313  exit
+  314  exit
+  315  lynx observador.pt
+  316  exit
+  317  htop
+  318  exit
+  319  htop
+  320  htop
+  321  clear
+  322  htop
+  323  emerge tmux
+  324  emerge tmux
+  325  ip addr show
+  326  ip link set wls3 down
+  327  ip link set enp0s25 up
+  328  ip addr show
+  329  ping google.com
+  330  emerge tmux
+  331  tmux
+  332  tmux
+  333  clear
+  334  htop
+  335  clear
+  336  ls
+  337  cd ..
+  338  htop
+  339  clear
+  340  cd /usr/src/linux-6.6.52-gentoo/
+  341  uname
+  342  uname --help
+  343  uname -a
+  344  ls
+  345  ls -a
+  346  make nconfig
+  347  make && make modules_install
+  348  make install
+  349  reboot
+  350  lynx observador.pt
+  351  exit
+  352  htop
+  353  exit
+  354  htop
+  355  ls
+  356  history
+  357  ip link set enp0s25 down
+  358  ip link set wls3 up
+  359  ping google.com
+  360  clear
+  361  htop
+  362  cear
+  363  clear
+  364  htop
+  365  history
+  366  history | more
+  367  cp /usr/src/linux-6.6.52-gentoo/.config ~/git/dev/gentoo/config_current2
+  368  git add .
+  369  cd ~/git/dev/gentoo/
+  370  git add .
+  371  git commit -m "update"
+  372  git push origin main
+  373  clear
+  374  htop
+  375  tmux
+  376  clear
+  377  htop
+  378  cd /usr/src/linux-6.6.52-gentoo/
+  379  make nconfig
+  380  cd ~/git/dev/gentoo/
+  381  git push origin main
+  382  git push origin main
+  383  cd /usr/src/linux-6.6.52-gentoo/
+  384  make 
+  385  make nconfig
+  386  make && make modules_install
+  387  make install
+  388  reboot
+  389  cp /usr/src/linux-6.6.52-gentoo/.config ~/git/dev/gentoo/config_current3
+  390  cd /usr/src/linux-6.6.52-gentoo/
+  391  ls -a
+  392  make nconfig
+  393  poweroff
+  394  htop
+  395  cd /usr/src/linux-6.6.52-gentoo/
+  396  ls -a
+  397  cp /usr/src/linux-6.6.52-gentoo/.config ~/git/dev/gentoo/config_current_failing
+  398  cp /usr/src/linux-6.6.52-gentoo/.config.old ~/git/dev/gentoo/config_current_old
+  399  cd ~/git/dev/gentoo/
+  400  history
+  401  git add .
+  402  git commit -m "update"
+  403  cd ~/git/dev/gentoo/ && git add . && git commit -m "update" && git commit -m "update"
+  404  cd ~/git/dev/gentoo/ && git add . && git commit -m "update" && git push origin main
+  405  git push origin main
+  406  ip addr show
+  407  ip addr show
+  408  ip link set wls3 down
+  409  ls
+  410  cd /usr/src/linux-6.6.52-gentoo/
+  411  rm .config
+  412  cp .config.old .config
+  413  ls -a
+  414  make nconfig
+  415  cd ~/git/dev/gentoo/
+  416  ls
+  417  la
+  418  ls -a
+  419  ls --help
+  420  ls --help | more
+  421  ls -as
+  422  cd /usr/src/linux-6.6.52-gentoo/
+  423  make nconfig
+  424  ls -a
+  425  cd /proc/
+  426  ls
+  427  nano /boot/config-6.6.52-gentoo-t61.old 
+  428  cd /usr/src/linux-6.6.52-gentoo/
+  429  rm .config
+  430  rm .config.old 
+  431  cp /boot/config-6.6.52-gentoo-t61.old /usr/src/linux-6.6.52-gentoo/.config
+  432  make nconfig
+  433  cp /boot/config-6.6.52-gentoo-t61.old ~/git/dev/gentoo/
+  434  ls -a
+  435  cp .config ~/.config-bak
+  436  ake mrproper
+  437  make mrproper
+  438  ls
+  439  ls -a
+  440  mv ~/.config-bak /usr/src/linux-6.6.52-gentoo/.config
+  441  make nconfig
+  442  ls -a
+  443  make nconfig
+  444  ls -a
+  445  make && make modules_install
+  446  make install
+  447  reboot
+  448  ip addr show
+  449  reboot
+  450  ip addr show
+  451  rc-service chronyd start
+  452  dmesg | grep chronyd
+  453  dmesg 
+  454  dmesg | grep chronyd
+  455  dmesg | grep error
+  456  dmesg | more
+  457  dmesg 
+  458  less /var/log/messages 
+  459  cat /var/log/messages | grep error
+  460  cat /var/log/messages | grep chronyd
+  461  reboot
+  462  copy /etc/portage/make.conf ~/git/dev/gentoo/
+  463  cp /etc/portage/make.conf ~/git/dev/gentoo/
+  464  cd git/dev/
+  465  ls
+  466  cd gentoo/
+  467  cd ~/git/dev/gentoo/ && git add . && git commit -m "update" && git push origin main
+  468  ping google.com
+  469  ip addr show
+  470  ip link wls3 down
+  471  ip addr show
+  472  ping google.com
+  473  ip link wls3 down
+  474  history
+  475  history | grep link
+  476  ip link set wls3 down
+  477  rc-service chronyd start
+  478  cd ~/git/dev/gentoo/ && git add . && git commit -m "update" && git push origin main
+  479  git push origin main
+  480  history > history_output.txt
