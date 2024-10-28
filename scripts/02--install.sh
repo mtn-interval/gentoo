@@ -287,7 +287,7 @@ separator
 echo -e "${CC_TEXT}Configuring compile options in /mnt/gentoo/etc/portage/make.conf...${CC_RESET}"
 
 # Replace the COMMON_FLAGS line
-sed -i 's/^COMMON_FLAGS=.*/COMMON_FLAGS="-march=native -O2 -pipe"/' /mnt/gentoo/etc/portage/make.conf
+sed -i 's/^COMMON_FLAGS=.*/COMMON_FLAGS="-march=core2 -O2 -pipe"/' /mnt/gentoo/etc/portage/make.conf
 
 # Append additional options to the file
 cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
@@ -298,7 +298,7 @@ VIDEO_CARDS="intel"
 INPUT_DEVICES="libinput synaptics"
 CPU_FLAGS_X86="mmx mmxext sse sse2 sse3 ssse3"
 ACCEPT_LICENSE="*"
-USE="X -gnome -kde -xfce -lxde -lxqt -mate -cinnamon -cde -bluetooth"
+USE="-gnome -kde -xfce -lxde -lxqt -mate -cinnamon -cde -bluetooth"
 EOL
 
 if [ $? -ne 0 ]; then
