@@ -5,7 +5,7 @@
 # CC_TEXT codes for output
 CC_HEADER='\033[1;35;44m'   # Bold Magenta on Blue background - To mark sections or major steps in the script.
 CC_TEXT='\033[1;34;40m'     # Bold Blue on Black background - For general text, prompts, and success messages.
-CC_ERROR='\033[1;35;40m'     # Bold Magenta on Black background - For error messages.
+CC_ERROR='\033[1;35;40m'    # Bold Magenta on Black background - For error messages.
 CC_RESET='\033[0m'          # Reset CC_TEXT - To reset color coding.
 
 
@@ -49,7 +49,7 @@ clear
 
 
 # Script header
-echo -e "${CC_HEADER}────── Gentoo Install Script  v0.02 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Gentoo Install Script  v0.03 ──────${CC_RESET}"
 echo
 pause
 
