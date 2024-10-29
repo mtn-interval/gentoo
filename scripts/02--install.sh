@@ -62,7 +62,6 @@ while true; do
 
     # Check if the selected disk is valid
     if lsblk -d -n -o NAME | grep -qw "$disk"; then
-        echo
         echo -e "${CC_TEXT}Valid disk selected: /dev/$disk${CC_RESET}"
         break  # Break the loop if the disk is valid
     else
@@ -166,8 +165,6 @@ if [ $? -ne 0 ]; then
     echo
     exit 1
 fi
-
-echo
 echo -e "${CC_TEXT}Partitioning complete on /dev/$disk.${CC_RESET}"
 separator
 
@@ -276,13 +273,15 @@ separator
 # Unpacking the Stage 3 tarball
 echo -e "${CC_TEXT}Unpacking the Stage 3 tarball...${CC_RESET}"
 cd /mnt/gentoo
-tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
+tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo --quiet
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to unpack the Stage 3 tarball. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
+echo
+echo -e "${CC_TEXT}Unpacking complete.$disk.${CC_RESET}"
 separator
 
 
@@ -318,10 +317,6 @@ if [ $? -ne 0 ]; then
     echo
     exit 1
 fi
-separator
-
-
-
 
 # Prompt user to make changes to make.conf
 read -p "$(echo -e "${CC_TEXT}Do you want to make any changes to /mnt/gentoo/etc/portage/make.conf? (y/n): ${CC_RESET}")" change_conf
@@ -365,6 +360,7 @@ separator
 
 # Change root into the new environment and run the chroot script
 echo -e "${CC_TEXT}Entering the chroot environment and executing 03--chroot.sh...${CC_RESET}"
+separator
 arch-chroot /mnt/gentoo ~/03--chroot.sh
 if [ $? -ne 0 ]; then
     echo

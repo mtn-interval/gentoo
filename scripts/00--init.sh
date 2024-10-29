@@ -119,7 +119,6 @@ echo -e "${CC_TEXT}Downloading the pre-install script...${CC_RESET}"
 while true; do
     wget --no-cache --quiet --show-progress https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/01--pre.sh
     if [ $? -eq 0 ]; then
-        echo -e "${CC_TEXT}Download successful.${CC_RESET}"
         break  # Break the loop if the download is successful
     else
         echo -e "${CC_ERROR}Failed to download the pre-install script.${CC_RESET}"

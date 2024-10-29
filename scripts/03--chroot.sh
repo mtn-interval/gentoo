@@ -81,7 +81,7 @@ separator
 # Choosing the right Gentoo profile
 echo -e "${CC_TEXT}Listing available Gentoo profiles...${CC_RESET}"
 eselect profile list | more
-
+echo
 read -p "$(echo -e "${CC_TEXT}Enter the profile number to set: ${CC_RESET}")" profile_number
 
 # Set the chosen profile
