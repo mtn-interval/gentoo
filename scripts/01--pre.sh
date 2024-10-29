@@ -39,7 +39,7 @@ pause
 
 
 # Define Mountain Interval repository
-base_url="https://raw.githubusercontent.com/mtn-interval/gentoo/main/"
+base_url="https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/"
 files=("02--install.sh" "03--chroot.sh")
 
 

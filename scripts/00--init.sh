@@ -37,7 +37,7 @@ clear
 
 
 # Script header
-echo -e "${CC_HEADER}────── Gentoo Install Script  v1.00 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Gentoo Install Script  v0.01 ──────${CC_RESET}"
 echo
 pause
 
@@ -56,7 +56,7 @@ separator
 # Download the pre-install script
 echo -e "${CC_TEXT}Downloading the pre-install script...${CC_RESET}"
 while true; do
-    wget --no-cache --quiet --show-progress https://raw.githubusercontent.com/mtn-interval/gentoo/main/01--pre.sh
+    wget --no-cache --quiet --show-progress https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/01--pre.sh
     if [ $? -eq 0 ]; then
         echo -e "${CC_TEXT}Download successful.${CC_RESET}"
         break  # Break the loop if the download is successful
