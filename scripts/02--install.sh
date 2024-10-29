@@ -273,7 +273,7 @@ separator
 # Unpacking the Stage 3 tarball
 echo -e "${CC_TEXT}Unpacking the Stage 3 tarball...${CC_RESET}"
 cd /mnt/gentoo
-tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo --quiet
+tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to unpack the Stage 3 tarball. Exiting.${CC_RESET}"
