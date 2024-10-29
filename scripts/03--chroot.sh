@@ -64,9 +64,9 @@ separator
 
 
 
-# Sync the Portage tree and capture the output
+# Sync the Portage tree and capture the output while displaying it
 echo -e "${CC_TEXT}Synchronizing the Portage tree with emerge --sync...${CC_RESET}"
-sync_output=$(emerge --sync 2>&1)
+sync_output=$(emerge --sync 2>&1 | tee /dev/tty)
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to synchronize the Portage tree. Exiting.${CC_RESET}"
@@ -75,11 +75,8 @@ if [ $? -ne 0 ]; then
 fi
 separator
 
-
-
-
 # Check if there's an update available for Portage
-if echo "$sync_output" | grep -q "an update to portage is available"; then
+if echo "$sync_output" | grep -iq "an update to portage is available"; then
     # Prompt the user to update Portage
     read -p "$(echo -e "${CC_TEXT}An update to Portage is available. Would you like to update it now? (y/n): ${CC_RESET}")" update_portage
     if [[ "$update_portage" =~ ^[Yy]$ ]]; then
@@ -99,6 +96,7 @@ else
     echo -e "${CC_TEXT}No Portage update needed.${CC_RESET}"
 fi
 separator
+
 
 
 
