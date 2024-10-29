@@ -98,50 +98,16 @@ if [ $? -ne 0 ]; then
     echo
     exit 1
 fi
-separator
 
 
 
 
-# Exit the chroot environment
-echo -e "${CC_TEXT}Exiting the chroot environment...${CC_RESET}"
-exit
-cd
-separator
-
-
-
-
-# Unmount all filesystems from /mnt/gentoo
-echo -e "${CC_TEXT}Unmounting all filesystems from /mnt/gentoo...${CC_RESET}"
-umount -R /mnt/gentoo
+# Start a new tmux session named "reboot"
+echo -e "${CC_TEXT}Starting a new tmux session named 'mtn-interval'...${CC_RESET}"
+tmux new -s reboot "bash ~/05--reboot.sh"
 if [ $? -ne 0 ]; then
     echo
-    echo -e "${CC_ERROR}Failed to unmount /mnt/gentoo. Exiting.${CC_RESET}"
+    echo -e "${CC_ERROR}Failed to start tmux session 'reboot'. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
-separator
-
-
-
-
-
-# Prompt the user to reboot or end the script
-while true; do
-    read -p "$(echo -e "${CC_TEXT}Would you like to reboot the system now? (y/n): ${CC_RESET}")" reboot_choice
-    case $reboot_choice in
-        [Yy]* )
-            echo -e "${CC_TEXT}Rebooting system...${CC_RESET}"
-            reboot
-            break
-            ;;
-        [Nn]* )
-            echo -e "${CC_TEXT}Exiting script. System not rebooted.${CC_RESET}"
-            break
-            ;;
-        * )
-            echo -e "${CC_ERROR}Invalid choice. Please enter 'y' or 'n'.${CC_RESET}"
-            ;;
-    esac
-done

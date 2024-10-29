@@ -298,7 +298,7 @@ sed -i 's/^COMMON_FLAGS=.*/COMMON_FLAGS="-march=core2 -O2 -pipe"/' /mnt/gentoo/e
 cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
 
 # CUSTOM ThinkPad
-MAKEOPTS="-j1"
+MAKEOPTS="-j2"
 VIDEO_CARDS="intel"
 INPUT_DEVICES="libinput synaptics"
 CPU_FLAGS_X86="mmx mmxext sse sse2 sse3 ssse3"

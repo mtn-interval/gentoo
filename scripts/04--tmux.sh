@@ -43,37 +43,9 @@ breakscript() {
 
 
 # Script header
-echo -e "${CC_HEADER}────── Change root into the new system  v0.03 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Tmux  v0.03 ──────${CC_RESET}"
 echo
 pause
-
-
-
-
-# Installing a Gentoo ebuild repository snapshot from the web
-echo -e "${CC_TEXT}Installing Gentoo ebuild repository snapshot using emerge-webrsync...${CC_RESET}"
-emerge-webrsync
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to install Gentoo ebuild repository snapshot. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
-separator
-
-
-
-
-# Synchronize the Portage tree
-echo -e "${CC_TEXT}Synchronizing the Portage tree with emerge --sync...${CC_RESET}"
-emerge --sync
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to synchronize the Portage tree. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
-separator
 
 
 
@@ -875,7 +847,7 @@ separator
 
 # Prompt the user if they want to exit tmux and finish the installation
 while true; do
-    read -p "$(echo -e "${CC_TEXT}Would you like to exit tmux, clean up, and finish the installation? (y/n): ${CC_RESET}")" exit_tmux
+    read -p "$(echo -e "${CC_TEXT}Would you like clean up, exit tmux and finish the installation? (y/n): ${CC_RESET}")" exit_tmux
     case $exit_tmux in
         [Yy]* )
             
