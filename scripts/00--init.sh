@@ -13,7 +13,7 @@ CC_RESET='\033[0m'          # Reset CC_TEXT - To reset color coding.
 
 # Function to pause the script
 pause() {
-    sleep 3
+    sleep 2
 }
 
 
@@ -24,7 +24,19 @@ separator() {
     echo -e "${CC_TEXT}│${CC_RESET}"
     echo -e "${CC_TEXT}│${CC_RESET}"
     echo -e "${CC_TEXT}│${CC_RESET}"
-    pause
+}
+
+
+
+
+# Function to pause and optionally exit for debugging
+breakscript() {
+    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
+    echo -e "${CC_ERROR}  SCRIPT PAUSED. Press Enter to exit. ${CC_RESET}"
+    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
+    read -p ""
+    echo
+    exit 1
 }
 
 
@@ -37,17 +49,66 @@ clear
 
 
 # Script header
-echo -e "${CC_HEADER}────── Gentoo Install Script  v0.01 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Gentoo Install Script  v0.02 ──────${CC_RESET}"
 echo
 pause
 
 
 
 
-# Load keyboard layout
-echo -e "${CC_TEXT}Loading portuguese keyboard layout...${CC_RESET}"
+# Set keyboard layout to Portuguese (Latin-1)
+echo -e "${CC_TEXT}Setting keyboard layout to pt-latin1...${CC_RESET}"
 loadkeys pt-latin1
-echo -e "${CC_TEXT}pt-latin1${CC_RESET}"
+separator
+
+
+
+
+# Verify network connection and perform basic network diagnostics
+echo -e "${CC_TEXT}Verifying network connection and performing basic diagnostics...${CC_RESET}"
+
+# Check the routing table
+echo -e "${CC_TEXT}Checking the routing table...${CC_RESET}"
+ip route
+if [ $? -ne 0 ]; then
+    echo
+    echo -e "${CC_ERROR}Failed to retrieve routing table. Exiting.${CC_RESET}"
+    echo
+    exit 1
+fi
+separator
+
+# Ping a known IP address to confirm connectivity
+echo -e "${CC_TEXT}Pinging 1.1.1.1 to test connectivity...${CC_RESET}"
+ping -c 3 1.1.1.1
+if [ $? -ne 0 ]; then
+    echo
+    echo -e "${CC_ERROR}Ping test failed. Exiting.${CC_RESET}"
+    echo
+    exit 1
+fi
+separator
+
+# Test HTTP connection to gentoo.org using curl
+echo -e "${CC_TEXT}Testing HTTP connection to gentoo.org...${CC_RESET}"
+curl --location gentoo.org --output /dev/null
+if [ $? -ne 0 ]; then
+    echo
+    echo -e "${CC_ERROR}HTTP connection test to gentoo.org failed. Exiting.${CC_RESET}"
+    echo
+    exit 1
+fi
+separator
+
+# Display IP address information
+echo -e "${CC_TEXT}Displaying IP address information...${CC_RESET}"
+ip address show
+if [ $? -ne 0 ]; then
+    echo
+    echo -e "${CC_ERROR}Failed to display IP address information. Exiting.${CC_RESET}"
+    echo
+    exit 1
+fi
 separator
 
 
@@ -103,7 +164,7 @@ if [[ -f 01--pre.sh ]]; then
 
     # Prompt for user to press Enter to continue
     echo -e "${CC_TEXT}The system is ready to proceed.${CC_RESET}"
-    read -p "$(echo -e "${CC_TEXT}Press Enter to continue with the pre-install script...${CC_RESET}")"
+    read -p "$(echo -e "${CC_TEXT}Press Enter to continue...${CC_RESET}")"
     
     echo
     echo -e "${CC_TEXT}Running 01--pre.sh...${CC_RESET}"

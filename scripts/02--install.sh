@@ -13,7 +13,7 @@ CC_RESET='\033[0m'          # Reset CC_TEXT - To reset color coding.
 
 # Function to pause the script
 pause() {
-    sleep 3
+    sleep 2
 }
 
 
@@ -24,19 +24,31 @@ separator() {
     echo -e "${CC_TEXT}│${CC_RESET}"
     echo -e "${CC_TEXT}│${CC_RESET}"
     echo -e "${CC_TEXT}│${CC_RESET}"
-    pause
+}
+
+
+
+
+# Function to pause and optionally exit for debugging
+breakscript() {
+    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
+    echo -e "${CC_ERROR}  SCRIPT PAUSED. Press Enter to exit. ${CC_RESET}"
+    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
+    read -p ""
+    echo
+    exit 1
 }
 
 
 
 
 # Script header
-echo -e "${CC_HEADER}────── Install System Core  v1.01 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Install System Core  v0.01 ──────${CC_RESET}"
 echo
 pause
 
 
-
+    breakscript ######## BREAK ########
 
 # Set keyboard layout to Portuguese (Latin-1)
 echo -e "${CC_TEXT}Setting keyboard layout to pt-latin1...${CC_RESET}"
@@ -171,17 +183,17 @@ separator
 
 
 # Formatting the partitions
-echo -e "${CC_TEXT}Formatting /dev/${disk}1 as XFS (boot partition)...${CC_RESET}"
-mkfs.xfs /dev/${disk}1
+echo -e "${CC_TEXT}Formatting /dev/${disk}1 as Ext4 (boot partition)...${CC_RESET}"
+mkfs.ext4 /dev/${disk}1
 if [ $? -ne 0 ]; then
     echo
-    echo -e "${CC_ERROR}PFailed to format /dev/${disk}1. Exiting.${CC_RESET}"
+    echo -e "${CC_ERROR}Failed to format /dev/${disk}1. Exiting.${CC_RESET}"
     echo
     exit 1
 fi
 
-echo -e "${CC_TEXT}Formatting /dev/${disk}3 as XFS (root partition)...${CC_RESET}"
-mkfs.xfs /dev/${disk}3
+echo -e "${CC_TEXT}Formatting /dev/${disk}3 as Ext4 (root partition)...${CC_RESET}"
+mkfs.ext4 /dev/${disk}3
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to format /dev/${disk}3. Exiting.${CC_RESET}"
