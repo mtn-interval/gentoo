@@ -43,7 +43,7 @@ breakscript() {
 
 
 # Script header
-echo -e "${CC_HEADER}────── Install System Core  v0.03 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Install System Core  v0.04 ──────${CC_RESET}"
 echo
 pause
 

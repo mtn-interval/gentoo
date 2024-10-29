@@ -43,7 +43,7 @@ breakscript() {
 
 
 # Script header
-echo -e "${CC_HEADER}────── Pre-install  v0.03 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Pre-install  v0.04 ──────${CC_RESET}"
 echo
 pause
 
@@ -52,7 +52,7 @@ pause
 
 # Define Mountain Interval repository
 base_url="https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/"
-files=("02--install.sh" "03--chroot.sh")
+files=("02--install.sh" "03--chroot.sh" "04--tmux.sh")
 
 
 
