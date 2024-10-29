@@ -43,7 +43,7 @@ breakscript() {
 
 
 # Script header
-echo -e "${CC_HEADER}────── Pre-install  v0.01 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Pre-install  v0.02 ──────${CC_RESET}"
 echo
 pause
 

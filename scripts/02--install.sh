@@ -43,17 +43,9 @@ breakscript() {
 
 
 # Script header
-echo -e "${CC_HEADER}────── Install System Core  v0.01 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Install System Core  v0.02 ──────${CC_RESET}"
 echo
 pause
-
-
-    breakscript ######## BREAK ########
-
-# Set keyboard layout to Portuguese (Latin-1)
-echo -e "${CC_TEXT}Setting keyboard layout to pt-latin1...${CC_RESET}"
-loadkeys pt-latin1
-separator
 
 
 
@@ -254,6 +246,7 @@ separator
 
 # Synchronizing the system clock
 echo -e "${CC_TEXT}Synchronizing the system clock using chronyd...${CC_RESET}"
+date
 chronyd -q
 if [ $? -ne 0 ]; then
     echo
@@ -261,6 +254,7 @@ if [ $? -ne 0 ]; then
     echo
     exit 1
 fi
+date
 separator
 
 
@@ -282,7 +276,7 @@ separator
 # Unpacking the Stage 3 tarball
 echo -e "${CC_TEXT}Unpacking the Stage 3 tarball...${CC_RESET}"
 cd /mnt/gentoo
-tar xpf stage3*
+tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to unpack the Stage 3 tarball. Exiting.${CC_RESET}"
@@ -303,14 +297,17 @@ sed -i 's/^COMMON_FLAGS=.*/COMMON_FLAGS="-march=core2 -O2 -pipe"/' /mnt/gentoo/e
 
 # Append additional options to the file
 cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
-MAKEOPTS="-j1 -l2"
-CHOST="x86_64-pc-linux-gnu"
-GENTOO_MIRRORS="https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/"
+MAKEOPTS="-j1"
 VIDEO_CARDS="intel"
 INPUT_DEVICES="libinput synaptics"
 CPU_FLAGS_X86="mmx mmxext sse sse2 sse3 ssse3"
+MICROCODE_SIGNATURES="-s 0x000006fd"
+USE="-gnome -kde -xfce -bluetooth -systemd"
+
+GENTOO_MIRRORS="https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/"
 ACCEPT_LICENSE="*"
-USE="-gnome -kde -xfce -lxde -lxqt -mate -cinnamon -cde -bluetooth"
+FEATURES="parallel-fetch"
+EMERGE_DEFAULT_OPTS="--ask --quiet-build=y"
 EOL
 
 if [ $? -ne 0 ]; then
@@ -374,8 +371,3 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 separator
-
-
-
-
-
