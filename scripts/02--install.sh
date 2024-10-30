@@ -262,7 +262,7 @@ echo -e "${CC_TEXT}Navigating to Gentoo mirrors to download the latest Stage 3 t
 cd /mnt/gentoo
 echo -e "${CC_TEXT}Launching links browser. Please navigate to the latest Stage 3 release, press 'd' to download.${CC_RESET}"
 pause
-links https://www.gentoo.org/downloads/mirrors/
+links https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/releases/amd64/autobuilds/
 
 echo -e "${CC_TEXT}Exiting links browser. Proceeding with the installation...${CC_RESET}"
 separator

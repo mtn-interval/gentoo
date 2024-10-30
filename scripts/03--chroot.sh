@@ -160,128 +160,128 @@ separator
 
 
 
-# Install timezone data
-echo -e "${CC_TEXT}Installing timezone data package...${CC_RESET}"
-emerge sys-libs/timezone-data
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to install timezone data. Exiting.${CC_RESET}"
-    echo
+# Detect if the Stage 3 tarball filename in root contains "musl"
+stage3_tarball=$(ls /stage3-*.tar.* 2>/dev/null | head -n 1)  # Detect the tarball file in the root directory
+
+if [[ -z "$stage3_tarball" ]]; then
+    echo -e "${CC_ERROR}Stage 3 tarball not found in the root directory. Exiting.${CC_RESET}"
     exit 1
 fi
-separator
 
-# Set timezone to Europe/Lisbon
-echo -e "${CC_TEXT}Setting timezone to Europe/Lisbon...${CC_RESET}"
-printf 'TZ="%s"' "$(cat /usr/share/zoneinfo/Europe/Lisbon | tail -n 1)" | tee /etc/env.d/00local
-if [ $? -ne 0 ]; then
+if echo "$stage3_tarball" | grep -iq "musl"; then
+    echo -e "${CC_TEXT}Detected musl Stage 3 tarball...${CC_RESET}"
     echo
-    echo -e "${CC_ERROR}Failed to set timezone. Exiting.${CC_RESET}"
+
+    # Install timezone data
+    echo -e "${CC_TEXT}Installing timezone data package...${CC_RESET}"
+    emerge sys-libs/timezone-data
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to install timezone data. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    separator
+
+    # Set timezone to Europe/Lisbon
+    echo -e "${CC_TEXT}Setting timezone to Europe/Lisbon...${CC_RESET}"
+    printf 'TZ="%s"' "$(cat /usr/share/zoneinfo/Europe/Lisbon | tail -n 1)" | tee /etc/env.d/00local
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to set timezone. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    separator
+
+    # Update environment and source profile
+    echo -e "${CC_TEXT}Updating environment and sourcing profile...${CC_RESET}"
+    env-update && source /etc/profile
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to update environment. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
     echo
-    exit 1
+    date
+    separator
+
+    # Uninstall timezone data package
+    echo -e "${CC_TEXT}Removing timezone data package...${CC_RESET}"
+    emerge --unmerge sys-libs/timezone-data
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to remove timezone data package. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    separator
+else
+    echo -e "${CC_TEXT}No musl Stage 3 tarball detected...${CC_RESET}"
+    echo
+    # Setting the system timezone to Europe/Lisbon
+    echo -e "${CC_TEXT}Setting system timezone to Europe/Lisbon...${CC_RESET}"
+    ln -sf ../usr/share/zoneinfo/Europe/Lisbon /etc/localtime
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to set the system timezone. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    separator
+
+    # Define locales
+    echo -e "${CC_TEXT}Uncommenting en_US.UTF-8 and pt_PT.UTF-8 in /etc/locale.gen...${CC_RESET}"
+    sed -i '/^#en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to uncomment locales in /etc/locale.gen. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    separator
+
+    # Generate locales
+    echo -e "${CC_TEXT}Generating locales...${CC_RESET}"
+    locale-gen
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to generate locales. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    separator
+
+    # Listing available locales
+    echo -e "${CC_TEXT}Listing available locales...${CC_RESET}"
+    eselect locale list
+
+    # Prompting user for the locale number
+    read -p "$(echo -e "${CC_TEXT}Enter the number corresponding to your desired locale: ${CC_RESET}")" locale_number
+
+    # Setting the selected locale
+    echo -e "${CC_TEXT}Setting the selected locale...${CC_RESET}"
+    eselect locale set "$locale_number"
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to set the locale. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    separator
+
+    # Updating environment and sourcing profile
+    echo -e "${CC_TEXT}Updating environment and sourcing /etc/profile...${CC_RESET}"
+    env-update && source /etc/profile && export PS1="(chroot) ${PS1}"
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to update environment and source profile. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    separator
 fi
-separator
-
-# Update environment and source profile
-echo -e "${CC_TEXT}Updating environment and sourcing profile...${CC_RESET}"
-env-update && source /etc/profile
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to update environment. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
-echo
-date
-separator
-
-
-
-
-# Uninstall timezone data package
-echo -e "${CC_TEXT}Removing timezone data package...${CC_RESET}"
-emerge --unmerge sys-libs/timezone-data
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to remove timezone data package. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
-separator
-
-
-
-
-# # Setting the system timezone to Europe/Lisbon
-# echo -e "${CC_TEXT}Setting system timezone to Europe/Lisbon...${CC_RESET}"
-# ln -sf ../usr/share/zoneinfo/Europe/Lisbon /etc/localtime
-# if [ $? -ne 0 ]; then
-#     echo
-#     echo -e "${CC_ERROR}Failed to set the system timezone. Exiting.${CC_RESET}"
-#     echo
-#     exit 1
-# fi
-# separator
-
-
-
-
-# # Define locales
-# echo -e "${CC_TEXT}Uncommenting en_US.UTF-8 and pt_PT.UTF-8 in /etc/locale.gen...${CC_RESET}"
-# sed -i '/^#en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
-# if [ $? -ne 0 ]; then
-#     echo
-#     echo -e "${CC_ERROR}Failed to uncomment locales in /etc/locale.gen. Exiting.${CC_RESET}"
-#     echo
-#     exit 1
-# fi
-# separator
-
-# # Generate locales
-# echo -e "${CC_TEXT}Generating locales...${CC_RESET}"
-# locale-gen
-# if [ $? -ne 0 ]; then
-#     echo
-#     echo -e "${CC_ERROR}Failed to generate locales. Exiting.${CC_RESET}"
-#     echo
-#     exit 1
-# fi
-# separator
-
-
-
-
-# # Listing available locales
-# echo -e "${CC_TEXT}Listing available locales...${CC_RESET}"
-# eselect locale list
-
-# # Prompting user for the locale number
-# read -p "$(echo -e "${CC_TEXT}Enter the number corresponding to your desired locale: ${CC_RESET}")" locale_number
-
-# # Setting the selected locale
-# echo -e "${CC_TEXT}Setting the selected locale...${CC_RESET}"
-# eselect locale set "$locale_number"
-# if [ $? -ne 0 ]; then
-#     echo
-#     echo -e "${CC_ERROR}Failed to set the locale. Exiting.${CC_RESET}"
-#     echo
-#     exit 1
-# fi
-# separator
-
-
-
-
-# # Updating environment and sourcing profile
-# echo -e "${CC_TEXT}Updating environment and sourcing /etc/profile...${CC_RESET}"
-# env-update && source /etc/profile && export PS1="(chroot) ${PS1}"
-# if [ $? -ne 0 ]; then
-#     echo
-#     echo -e "${CC_ERROR}Failed to update environment and source profile. Exiting.${CC_RESET}"
-#     echo
-#     exit 1
-# fi
-# separator
 
 
 
