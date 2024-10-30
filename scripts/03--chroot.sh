@@ -668,6 +668,23 @@ fi
 echo -e "${CC_TEXT}Network configuration for $ethernet_device added to /etc/conf.d/net successfully.${CC_RESET}"
 separator
 
+# Prompt the user if they want to edit /etc/conf.d/net
+read -p "$(echo -e "${CC_TEXT}Would you like to make any edits to /etc/conf.d/net? (y/n): ${CC_RESET}")" edit_net
+if [[ "$edit_net" =~ ^[Yy]$ ]]; then
+    echo -e "${CC_TEXT}Opening /etc/conf.d/net in nano...${CC_RESET}"
+    nano /etc/conf.d/net
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to edit /etc/conf.d/net. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    echo -e "${CC_TEXT}Finished editing /etc/conf.d/net.${CC_RESET}"
+else
+    echo -e "${CC_TEXT}No further edits to /etc/conf.d/net.${CC_RESET}"
+fi
+separator
+
 
 
 
