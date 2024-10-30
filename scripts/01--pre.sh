@@ -49,21 +49,14 @@ breakscript() {
 
 
 
-
 # Script header
 echo -e "${CC_HEADER}────── Pre-install  v0.07 ──────${CC_RESET}"
 echo
 pause
 
-
-
-
 # Define Mountain Interval repository
 base_url="https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/"
 files=("02--install.sh" "03--chroot.sh")
-
-
-
 
 # Download each script from GitHub
 for file in "${files[@]}"; do
@@ -81,12 +74,10 @@ for file in "${files[@]}"; do
                     y|Y)
                         echo
                         echo -e "${CC_TEXT}Retrying download of ${file}...${CC_RESET}"
-                        break  # Break the inner loop to retry the download
+                        break
                         ;;
                     n|N)
-                        echo
-                        echo -e "${CC_ERROR}Exiting...${CC_RESET}"
-                        echo
+                        error "Failed to download."
                         exit 1
                         ;;
                     *)
@@ -100,35 +91,25 @@ for file in "${files[@]}"; do
 done
 separator
 
-
-
-
 # Make the downloaded scripts executable
 echo -e "${CC_TEXT}Making the scripts executable...${CC_RESET}"
 for file in "${files[@]}"; do
     if [[ -f $file ]]; then
         chmod +x "$file"
     else
-        echo -e "${CC_ERROR}${file} not found. Skipping...${CC_RESET}"
+        error "${file} not found."
     fi
 done
 echo -e "${CC_TEXT}Executable permissions granted.${CC_RESET}"
 separator
 
-
-
-
 # Run install
 if [[ -f 02--install.sh ]]; then
-
-    # Prompt for user to press Enter to continue
     echo -e "${CC_TEXT}The system is ready to proceed.${CC_RESET}"
     echo -e "${CC_TEXT}Running 02--install.sh...${CC_RESET}"
     separator
     ./02--install.sh
 else
-    echo
-    echo -e "${CC_ERROR}File not found. Exiting...${CC_RESET}"
-    echo
+    error "File not found."
     exit 1
 fi
