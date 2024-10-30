@@ -54,9 +54,6 @@ echo -e "${CC_HEADER}────── Install System Core  v0.07 ────�
 echo
 pause
 
-
-
-
 # List available disks
 while true; do
     echo -e "${CC_TEXT}Available Disks:${CC_RESET}"
@@ -70,16 +67,13 @@ while true; do
     # Check if the selected disk is valid
     if lsblk -d -n -o NAME | grep -qw "$disk"; then
         echo -e "${CC_TEXT}Valid disk selected: /dev/$disk${CC_RESET}"
-        break  # Break the loop if the disk is valid
+        break 
     else
         echo
         echo -e "${CC_TEXT}Invalid disk selected: $disk. Please try again.${CC_RESET}"
         echo
     fi
 done
-
-
-
 
 # Confirm the choice and warn about data erasure
 echo
@@ -88,7 +82,7 @@ while true; do
     read -p "$(echo -e "${CC_TEXT}Are you sure you want to continue? (y/n): ${CC_RESET}")" confirm
     case $confirm in
         y|Y)
-            break  # Break the loop and continue to the next step
+            break
             ;;
         n|N)
             echo
@@ -103,9 +97,6 @@ while true; do
     esac
 done
 separator
-
-                                                                                                                                      
-
 
 # Detect and wipe all existing partitions using wipefs
 echo -e "${CC_TEXT}Detecting and wiping filesystem signatures from all partitions on /dev/$disk...${CC_RESET}"
@@ -125,22 +116,13 @@ else
     for partition in $partitions; do
         # Ensure we are passing full /dev/ path to wipefs
         wipefs -fa "/dev/$partition"  # Correct usage with full path for each partition
-        if [ $? -ne 0 ]; then
-            echo
-            echo -e "${CC_ERROR}Failed to wipe /dev/$partition. Exiting.${CC_RESET}"
-            echo
-            exit 1
-        fi
+        check_error "Failed to wipe /dev/$partition."
     done
 fi
 separator
 
-
-
-
 # Partition the disk using fdisk
 echo -e "${CC_TEXT}Starting automatic partitioning of /dev/$disk...${CC_RESET}"
-
 (
 echo o      # Create a new empty DOS partition table
 echo n      # Add a new partition
@@ -165,104 +147,46 @@ echo        # Default - last sector (use full disk)
 echo p 		# Show list of partitions
 echo w      # Write changes
 ) | fdisk --color=never /dev/$disk
-
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Partitioning failed on /dev/$disk. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Partitioning failed on /dev/$disk."
 echo -e "${CC_TEXT}Partitioning complete on /dev/$disk.${CC_RESET}"
 separator
-
-
-
 
 # Formatting the partitions
 echo -e "${CC_TEXT}Formatting /dev/${disk}1 as Ext4 (boot partition)...${CC_RESET}"
 mkfs.ext4 /dev/${disk}1
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to format /dev/${disk}1. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
-
+check_error "Failed to format /dev/${disk}1."
 echo -e "${CC_TEXT}Formatting /dev/${disk}3 as Ext4 (root partition)...${CC_RESET}"
 mkfs.ext4 /dev/${disk}3
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to format /dev/${disk}3. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to format /dev/${disk}3."
 separator
-
-
-
 
 # Activating the swap partition
 echo -e "${CC_TEXT}Setting up and activating swap on /dev/${disk}2...${CC_RESET}"
 mkswap /dev/${disk}2
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to set up swap on /dev/${disk}2. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
-
+check_error "Failed to set up swap on /dev/${disk}2."
 swapon /dev/${disk}2
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to activate swap on /dev/${disk}2. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to activate swap on /dev/${disk}2."
 separator
-
-
-
 
 # Mounting partitions
 echo -e "${CC_TEXT}Mounting root partition (/dev/${disk}3) to /mnt/gentoo...${CC_RESET}"
 mkdir -p /mnt/gentoo
 mount /dev/${disk}3 /mnt/gentoo
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to mount /dev/${disk}3. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to mount /dev/${disk}3."
 
 echo -e "${CC_TEXT}Mounting boot partition (/dev/${disk}1) to /mnt/gentoo/boot...${CC_RESET}"
 mkdir -p /mnt/gentoo/boot
 mount /dev/${disk}1 /mnt/gentoo/boot
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to mount /dev/${disk}1. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to mount /dev/${disk}1."
 separator
-
-
-
 
 # Synchronizing the system clock
 echo -e "${CC_TEXT}Synchronizing the system clock using chronyd...${CC_RESET}"
 date
 chronyd -q
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to synchronize the system clock. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to synchronize the system clock."
 date
 separator
-
-
-
 
 # Downloading the Stage 3 tarball
 echo -e "${CC_TEXT}Navigating to Gentoo mirrors to download the latest Stage 3 tarball...${CC_RESET}"
@@ -270,30 +194,17 @@ cd /mnt/gentoo
 echo -e "${CC_TEXT}Launching links browser. Please navigate to the latest Stage 3 release, press 'd' to download.${CC_RESET}"
 pause
 links https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/releases/amd64/autobuilds/
-
 echo -e "${CC_TEXT}Exiting links browser. Proceeding with the installation...${CC_RESET}"
 separator
-
-
-
 
 # Unpacking the Stage 3 tarball
 echo -e "${CC_TEXT}Unpacking the Stage 3 tarball...${CC_RESET}"
 cd /mnt/gentoo
 tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to unpack the Stage 3 tarball. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to unpack the Stage 3 tarball."
 echo
 echo -e "${CC_TEXT}Unpacking complete.$disk.${CC_RESET}"
 separator
-
-
-
-
 
 # Configuring compile options in make.conf
 echo -e "${CC_TEXT}Configuring compile options in /mnt/gentoo/etc/portage/make.conf...${CC_RESET}"
@@ -317,17 +228,10 @@ ACCEPT_LICENSE="*"
 FEATURES="parallel-fetch"
 EMERGE_DEFAULT_OPTS="--quiet-build=y"
 EOL
-
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to configure /mnt/gentoo/etc/portage/make.conf. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf."
 
 # Prompt user to make changes to make.conf
 read -p "$(echo -e "${CC_TEXT}Do you want to make any changes to /mnt/gentoo/etc/portage/make.conf? (y/n): ${CC_RESET}")" change_conf
-
 if [[ "$change_conf" =~ ^[Yy]$ ]]; then
     echo -e "${CC_TEXT}Opening /mnt/gentoo/etc/portage/make.conf in nano...${CC_RESET}"
     nano /mnt/gentoo/etc/portage/make.conf
@@ -336,43 +240,22 @@ else
 fi
 separator
 
-
-
-
 # Copy DNS info
 echo -e "${CC_TEXT}Copying DNS information to /mnt/gentoo/etc/...${CC_RESET}"
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to copy DNS information. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to copy DNS information."
 separator
-
-
-
 
 # Copy necessary install scripts to the new system
 echo -e "${CC_TEXT}Copying installation scripts to /mnt/gentoo/root...${CC_RESET}"
 cd ~
 cp *--*.sh /mnt/gentoo/root
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to copy installation scripts. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to copy installation scripts."
 separator
 
 # Change root into the new environment and run the chroot script
 echo -e "${CC_TEXT}Entering the chroot environment and executing 03--chroot.sh...${CC_RESET}"
 separator
 arch-chroot /mnt/gentoo ~/03--chroot.sh
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to chroot into the new environment. Exiting.${CC_RESET}"
-    echo
-    exit 1
-fi
+check_error "Failed to chroot into the new environment."
 separator
