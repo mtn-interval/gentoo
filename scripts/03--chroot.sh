@@ -286,14 +286,37 @@ fi
 
 
 
-# Installing linux-firmware and intel-microcode
-echo -e "${CC_TEXT}Installing linux-firmware and intel-microcode...${CC_RESET}"
-emerge sys-kernel/linux-firmware sys-firmware/intel-microcode
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${CC_ERROR}Failed to install linux-firmware or intel-microcode. Exiting.${CC_RESET}"
-    echo
-    exit 1
+# Prompt the user if they want to install linux-firmware
+read -p "$(echo -e "${CC_TEXT}Would you like to install linux-firmware? (y/n): ${CC_RESET}")" install_linux_firmware
+if [[ "$install_linux_firmware" =~ ^[Yy]$ ]]; then
+    echo -e "${CC_TEXT}Installing linux-firmware...${CC_RESET}"
+    emerge sys-kernel/linux-firmware
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to install linux-firmware. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    echo -e "${CC_TEXT}linux-firmware installed successfully.${CC_RESET}"
+else
+    echo -e "${CC_TEXT}Skipping installation of linux-firmware.${CC_RESET}"
+fi
+separator
+
+# Prompt the user if they want to install intel-microcode
+read -p "$(echo -e "${CC_TEXT}Would you like to install intel-microcode? (y/n): ${CC_RESET}")" install_intel_microcode
+if [[ "$install_intel_microcode" =~ ^[Yy]$ ]]; then
+    echo -e "${CC_TEXT}Installing intel-microcode...${CC_RESET}"
+    emerge sys-firmware/intel-microcode
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to install intel-microcode. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    echo -e "${CC_TEXT}intel-microcode installed successfully.${CC_RESET}"
+else
+    echo -e "${CC_TEXT}Skipping installation of intel-microcode.${CC_RESET}"
 fi
 separator
 
