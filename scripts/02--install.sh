@@ -2,22 +2,18 @@
 
 # Automation script by Mountain Interval
 
+
+
 # CC_TEXT codes for output
 CC_HEADER='\033[1;35;44m'   # Bold Magenta on Blue background - To mark sections or major steps in the script.
 CC_TEXT='\033[1;34;40m'     # Bold Blue on Black background - For general text, prompts, and success messages.
 CC_ERROR='\033[1;35;40m'    # Bold Magenta on Black background - For error messages.
 CC_RESET='\033[0m'          # Reset CC_TEXT - To reset color coding.
 
-
-
-
 # Function to pause the script
 pause() {
     sleep 2
 }
-
-
-
 
 # Define text separator style
 separator() {
@@ -26,8 +22,20 @@ separator() {
     echo -e "${CC_TEXT}│${CC_RESET}"
 }
 
+# Function to print error messages
+error() {
+    echo
+    echo -e "${CC_ERROR}$1 Exiting.${CC_RESET}"
+    echo
+}
 
-
+# Function to check exit status and handle errors
+check_error() {
+    if [ $? -ne 0 ]; then
+        error "$1"
+        exit 1
+    fi
+}
 
 # Function to pause and optionally exit for debugging
 breakscript() {
@@ -41,9 +49,8 @@ breakscript() {
 
 
 
-
 # Script header
-echo -e "${CC_HEADER}────── Install System Core  v0.05 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Install System Core  v0.07 ──────${CC_RESET}"
 echo
 pause
 
