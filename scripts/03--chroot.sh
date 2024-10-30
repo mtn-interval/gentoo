@@ -458,6 +458,26 @@ separator
 
 
 
+# Prompt the user if they want to install dev-util/pahole
+read -p "$(echo -e "${CC_TEXT}Would you like to install dev-util/pahole? (y/n): ${CC_RESET}")" install_pahole
+if [[ "$install_pahole" =~ ^[Yy]$ ]]; then
+    echo -e "${CC_TEXT}Installing dev-util/pahole...${CC_RESET}"
+    emerge dev-util/pahole
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${CC_ERROR}Failed to install dev-util/pahole. Exiting.${CC_RESET}"
+        echo
+        exit 1
+    fi
+    echo -e "${CC_TEXT}dev-util/pahole installed successfully.${CC_RESET}"
+else
+    echo -e "${CC_TEXT}Skipping installation of dev-util/pahole.${CC_RESET}"
+fi
+separator
+
+
+
+
 # Generate a minimal kernel configuration based on loaded modules
 echo -e "${CC_TEXT}Generating a minimal kernel configuration based on currently loaded modules with make localmodconfig...${CC_RESET}"
 cd /usr/src/linux
