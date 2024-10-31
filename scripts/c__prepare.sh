@@ -208,12 +208,28 @@ separator
 
 # Prompt the user to enable or disable Distributed Compiling
 read -p "$(echo -e "${CC_TEXT}Would you like to use Distributed Compiling? (y/n): ${CC_RESET}")" use_distributed
+
 if [[ "$use_distributed" =~ ^[Yy]$ ]]; then
     distributed=1
     echo -e "${CC_TEXT}Distributed Compiling enabled.${CC_RESET}"
+    
+    # Ask for local and remote cores
+    read -p "$(echo -e "${CC_TEXT}Enter the number of local CPU cores: ${CC_RESET}")" local_cores
+    read -p "$(echo -e "${CC_TEXT}Enter the number of remote CPU cores: ${CC_RESET}")" remote_cores
+
+    # Calculate total jobs
+    jobs=$(( (2 * (local_cores + remote_cores)) + 1 ))
+    echo -e "${CC_TEXT}Jobs set to: $jobs${CC_RESET}"
 else
     distributed=0
     echo -e "${CC_TEXT}Distributed Compiling disabled.${CC_RESET}"
+    
+    # Ask for local cores only
+    read -p "$(echo -e "${CC_TEXT}Enter the number of local CPU cores: ${CC_RESET}")" local_cores
+
+    # Set jobs to local cores
+    jobs=$local_cores
+    echo -e "${CC_TEXT}Jobs set to: $jobs${CC_RESET}"
 fi
 
 # Export the variable to make it available to other scripts
@@ -230,24 +246,34 @@ sed -i 's/^COMMON_FLAGS=.*/COMMON_FLAGS="-march=core2 -O2 -pipe"/' /mnt/gentoo/e
 cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
 
 # CUSTOM ThinkPad
-MAKEOPTS="-j2"
+
+GENTOO_MIRRORS="https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/"
+ACCEPT_LICENSE="*"
+
 VIDEO_CARDS="intel"
 INPUT_DEVICES="libinput synaptics"
 CPU_FLAGS_X86="mmx mmxext sse sse2 sse3 ssse3"
 MICROCODE_SIGNATURES="-s 0x000006fd"
 USE="-gnome -kde -xfce -bluetooth -systemd"
-
-GENTOO_MIRRORS="https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/"
-ACCEPT_LICENSE="*"
 EMERGE_DEFAULT_OPTS="--quiet-build=y"
 EOL
 check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf."
 
 # Check if the distributed variable is set and append the appropriate FEATURES to make.conf
 if [[ "$distributed" -eq 0 ]]; then
-    echo 'FEATURES="parallel-fetch"' >> /mnt/gentoo/etc/portage/make.conf
+cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
+
+MAKEOPTS="-j$jobs"
+FEATURES="parallel-fetch"
+EOL
+check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf."
 elif [[ "$distributed" -eq 1 ]]; then
-    echo 'FEATURES="parallel-fetch distcc"' >> /mnt/gentoo/etc/portage/make.conf
+cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
+
+MAKEOPTS="-j$jobs -l$local_cores"
+FEATURES="parallel-fetch distcc"
+EOL
+check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf."
 else
     error "Error: Unknown value for distributed variable."
     exit 1
