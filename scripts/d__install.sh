@@ -327,7 +327,7 @@ separator
 
 # Configure installkernel to use GRUB
 echo -e "${CC_TEXT}Configuring installkernel to use GRUB...${CC_RESET}"
-echo "sys-kernel/installkernel grub" > /etc/portage/package.use/installkernel
+echo "sys-kernel/installkernel grub dracut" > /etc/portage/package.use/installkernel
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to configure installkernel for GRUB. Exiting.${CC_RESET}"
