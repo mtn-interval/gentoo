@@ -131,8 +131,8 @@ if [[ "$v_distributed" -eq 1 ]]; then
     # Add distccd to default runlevel and start the service
     rc-update add distccd default
     check_error "Failed to add distccd to default runlevel."
-    rc-service distccd start
-    check_error "Failed to start distccd."
+    # rc-service distccd start
+    # check_error "Failed to start distccd."
 
     # Prompt user for the distribution host's IP address
     read -p "$(echo -e "${CC_TEXT}Enter the IP address of the distribution host: ${CC_RESET}")" distcc_host_ip
@@ -140,18 +140,18 @@ if [[ "$v_distributed" -eq 1 ]]; then
     # Prompt the user if they want localhost to participate
     read -p "$(echo -e "${CC_TEXT}Should localhost participate in distributed compiling? (y/n): ${CC_RESET}")" use_localhost
     if [[ "$use_localhost" =~ ^[Yy]$ ]]; then
-        /usr/bin/distcc-config --set-hosts "localhost $distcc_host_ip,cpp,lzo"
+        /usr/bin/distcc-config --set-hosts "localhost $distcc_host_ip"
         check_error "Failed to set distcc hosts with localhost included."
         echo -e "${CC_TEXT}Configured distcc with localhost and distribution host ${distcc_host_ip}.${CC_RESET}"
     else
-        /usr/bin/distcc-config --set-hosts "$distcc_host_ip,cpp,lzo"
+        /usr/bin/distcc-config --set-hosts "$distcc_host_ip"
         check_error "Failed to set distcc hosts without localhost."
         echo -e "${CC_TEXT}Configured distcc with distribution host ${distcc_host_ip} only.${CC_RESET}"
     fi
 
-    # Add distcc to PATH
-    export PATH="/usr/lib/distcc/bin:${PATH}"
-    echo -e "${CC_TEXT}distcc configured successfully and PATH updated.${CC_RESET}"
+    # # Add distcc to PATH
+    # export PATH="/usr/lib/distcc/bin:${PATH}"
+    # echo -e "${CC_TEXT}distcc configured successfully and PATH updated.${CC_RESET}"
 
 else
     echo -e "${CC_TEXT}Distributed compiling is disabled. Skipping distcc setup.${CC_RESET}"
