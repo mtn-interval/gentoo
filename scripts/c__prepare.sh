@@ -239,9 +239,6 @@ separator
 # Configuring compile options in make.conf
 echo -e "${CC_TEXT}Configuring compile options in /mnt/gentoo/etc/portage/make.conf...${CC_RESET}"
 
-# Replace the COMMON_FLAGS line
-sed -i 's/^COMMON_FLAGS=.*/COMMON_FLAGS="-march=core2 -O2 -pipe"/' /mnt/gentoo/etc/portage/make.conf
-
 # Append additional options to the file
 cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
 
@@ -311,7 +308,7 @@ if [[ -f d__install.sh ]]; then
     # Change root into the new environment and run the chroot script
     echo -e "${CC_TEXT}Entering the chroot environment...${CC_RESET}"
     separator
-    arch-chroot /mnt/gentoo ~/d__install.sh
+    v_jobs="$jobs" v_distributed="$distributed" arch-chroot /mnt/gentoo ~/d__install.sh
     check_error "Failed to chroot into the new environment."
     separator
 else

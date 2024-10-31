@@ -98,8 +98,66 @@ else
 fi
 separator
 
+# Install resolve-march-native
+echo -e "${CC_TEXT}Installing app-misc/resolve-march-native...${CC_RESET}"
+emerge app-misc/resolve-march-native
+check_error "Failed to install resolve-march-native."
 
-######INSERT DISTCC HERE
+# Run resolve-march-native and save the output to a variable
+recommended_flags=$(resolve-march-native --add-recommended)
+check_error "Failed to run resolve-march-native."
+
+# Update COMMON_FLAGS in /etc/portage/make.conf
+echo -e "${CC_TEXT}Updating COMMON_FLAGS in /etc/portage/make.conf...${CC_RESET}"
+sed -i "s/^COMMON_FLAGS=.*/COMMON_FLAGS=\"$recommended_flags\"/" /etc/portage/make.conf
+check_error "Failed to update COMMON_FLAGS in make.conf."
+echo -e "${CC_TEXT}COMMON_FLAGS updated successfully to: $recommended_flags${CC_RESET}"
+separator
+
+# Unmerge resolve-march-native
+echo -e "${CC_TEXT}Uninstalling app-misc/resolve-march-native...${CC_RESET}"
+emerge --unmerge app-misc/resolve-march-native
+check_error "Failed to uninstall resolve-march-native."
+separator
+
+# Check if distributed compiling is enabled
+if [[ "$v_distributed" -eq 1 ]]; then
+    echo -e "${CC_TEXT}Distributed compiling enabled. Setting up distcc...${CC_RESET}"
+
+    # Install distcc
+    emerge sys-devel/distcc
+    check_error "Failed to install distcc."
+
+    # Add distccd to default runlevel and start the service
+    rc-update add distccd default
+    check_error "Failed to add distccd to default runlevel."
+    rc-service distccd start
+    check_error "Failed to start distccd."
+
+    # Prompt user for the distribution host's IP address
+    read -p "$(echo -e "${CC_TEXT}Enter the IP address of the distribution host: ${CC_RESET}")" distcc_host_ip
+
+    # Prompt the user if they want localhost to participate
+    read -p "$(echo -e "${CC_TEXT}Should localhost participate in distributed compiling? (y/n): ${CC_RESET}")" use_localhost
+    if [[ "$use_localhost" =~ ^[Yy]$ ]]; then
+        /usr/bin/distcc-config --set-hosts "localhost $distcc_host_ip,cpp,lzo"
+        check_error "Failed to set distcc hosts with localhost included."
+        echo -e "${CC_TEXT}Configured distcc with localhost and distribution host ${distcc_host_ip}.${CC_RESET}"
+    else
+        /usr/bin/distcc-config --set-hosts "$distcc_host_ip,cpp,lzo"
+        check_error "Failed to set distcc hosts without localhost."
+        echo -e "${CC_TEXT}Configured distcc with distribution host ${distcc_host_ip} only.${CC_RESET}"
+    fi
+
+    # Add distcc to PATH
+    export PATH="/usr/lib/distcc/bin:${PATH}"
+    echo -e "${CC_TEXT}distcc configured successfully and PATH updated.${CC_RESET}"
+
+else
+    echo -e "${CC_TEXT}Distributed compiling is disabled. Skipping distcc setup.${CC_RESET}"
+fi
+separator
+
 
 
 # Choosing the right Gentoo profile
@@ -508,7 +566,7 @@ separator
 
 # Build the kernel
 echo -e "${CC_TEXT}Building the kernel with make...${CC_RESET}"
-make
+make 
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Kernel build failed. Exiting.${CC_RESET}"
