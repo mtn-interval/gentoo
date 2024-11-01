@@ -215,9 +215,9 @@ for step in "${sorted_steps[@]}"; do
         4)
             # Choosing the right Gentoo profile
             echo -e "${CC_TEXT}Listing available Gentoo profiles...${CC_RESET}"
-            eselect profile list | more
+            eselect profile list
             echo
-            profile_number=$(execute_if_not_unattended "${CC_TEXT}Enter the profile number to set: ${CC_RESET}" "1")
+            profile_number=$(execute_if_not_unattended "${CC_TEXT}Enter the profile number to set: ${CC_RESET}" "69")
 
             # Set the chosen profile
             eselect profile set "$profile_number"
