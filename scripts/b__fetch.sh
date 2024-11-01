@@ -61,7 +61,7 @@ execute_if_not_unattended() {
 
 
 ########################################################################################
-echo "unatended variable is -----------> $unattended"
+
 
 # Define Mountain Interval repository
 base_url="https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/"

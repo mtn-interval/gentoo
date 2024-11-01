@@ -62,6 +62,7 @@ execute_if_not_unattended() {
 
 ########################################################################################
 
+
 # Step labels and user prompt
 declare -A steps
 steps=(
