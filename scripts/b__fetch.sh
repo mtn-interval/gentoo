@@ -37,14 +37,31 @@ check_error() {
     fi
 }
 
+# Function to handle prompts based on the $unattended variable
+execute_if_not_unattended() {
+    local prompt_text="$1"
+    local default_answer="$2"
+    local user_answer
+
+    if [[ "$unattended" -eq 1 ]]; then
+        # Display the prompt text and default answer to stderr to avoid capturing it
+        echo -e "${prompt_text} (Unattended mode: default answer '$default_answer')" >&2
+        # Set user_answer to the default answer without echoing it
+        user_answer="$default_answer"
+    else
+        # In interactive mode, prompt the user for input
+        read -r -p "$(echo -e "$prompt_text")" user_answer
+        # If the user enters nothing, use the default answer
+        user_answer="${user_answer:-$default_answer}"
+    fi
+
+    # Return only the answer for capturing in the calling command
+    echo "$user_answer"
+}
+
 
 ########################################################################################
 
-
-# Script header
-echo -e "${CC_HEADER}────── Fetch  v0.09 ──────${CC_RESET}"
-echo
-pause
 
 # Define Mountain Interval repository
 base_url="https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/"
@@ -98,7 +115,6 @@ separator
 # Proceed
 if [[ -f c__prepare.sh ]]; then
     echo -e "${CC_TEXT}The system is ready to proceed.${CC_RESET}"
-    read -p "$(echo -e "${CC_TEXT}Press Enter to continue...${CC_RESET}")"
     separator
     ./c__prepare.sh
 else

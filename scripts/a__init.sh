@@ -37,6 +37,28 @@ check_error() {
     fi
 }
 
+# Function to handle prompts based on the $unattended variable
+execute_if_not_unattended() {
+    local prompt_text="$1"
+    local default_answer="$2"
+    local user_answer
+
+    if [[ "$unattended" -eq 1 ]]; then
+        # Display the prompt text and default answer to stderr to avoid capturing it
+        echo -e "${prompt_text} (Unattended mode: default answer '$default_answer')" >&2
+        # Set user_answer to the default answer without echoing it
+        user_answer="$default_answer"
+    else
+        # In interactive mode, prompt the user for input
+        read -r -p "$(echo -e "$prompt_text")" user_answer
+        # If the user enters nothing, use the default answer
+        user_answer="${user_answer:-$default_answer}"
+    fi
+
+    # Return only the answer for capturing in the calling command
+    echo "$user_answer"
+}
+
 
 ########################################################################################
 
@@ -49,6 +71,17 @@ echo -e "${CC_HEADER}────── Gentoo Install Script  v0.09 ───�
 echo
 pause
 
+# Prompt the user to choose unattended or interactive mode
+read -p "$(echo -e "${CC_TEXT}Do you want the installation process to be unattended? (y/n): ${CC_RESET}")" u_choice
+if [[ "$u_choice" == "y" || "$u_choice" == "Y" ]]; then
+    unattended=1
+    echo -e "${CC_TEXT}Unattended mode selected.${CC_RESET}"
+else
+    unattended=0
+    echo -e "${CC_TEXT}Interactive mode selected.${CC_RESET}"
+fi
+separator
+
 # Step labels and user prompt
 declare -A steps
 steps=(
@@ -58,32 +91,32 @@ steps=(
     # Add more steps as needed
 )
 
-# Print the index of steps
-echo "${CC_TEXT}Available Steps:${CC_RESET}"
-echo
-for step in "${!steps[@]}"; do
+# Generate a sorted list of step keys
+sorted_steps=($(echo "${!steps[@]}" | tr ' ' '\n' | sort -n))
+
+# Print the index of steps in sorted order
+echo -e "${CC_TEXT}Available Steps:${CC_RESET}"
+for step in "${sorted_steps[@]}"; do
     echo "[$step]: ${steps[$step]}"
 done
 echo
 
 # Ask user if they want to resume
-echo "${CC_TEXT}Do you want to resume from a specific step? (y/n)${CC_RESET}"
-read -r resume_choice
+resume_choice=$(execute_if_not_unattended "${CC_TEXT}Do you want to resume from a specific step? (y/n): ${CC_RESET}" "n")
 if [[ $resume_choice == "y" ]]; then
-    echo "${CC_TEXT}Enter the step number to start from (1-${#steps[@]}):${CC_RESET}"
-    read -r start_step
+    read -p "$(echo -e "${CC_TEXT}Enter the step number to start from (1-${#steps[@]}): ${CC_RESET}")" start_step
 else
     start_step=1
 fi
 
-# Loop through steps
-for step in "${!steps[@]}"; do
+# Loop through steps in sorted order
+for step in "${sorted_steps[@]}"; do
     # Skip steps until reaching the desired starting step
     if (( step < start_step )); then
         continue
     fi
     
-    echo "${CC_TEXT}[$step]: ${steps[$step]}${CC_RESET}"
+    echo -e "${CC_TEXT}[$step]: ${steps[$step]}${CC_RESET}"
     
     # Execute the corresponding commands for each step
     case $step in
@@ -155,7 +188,7 @@ for step in "${!steps[@]}"; do
 
             # Make the script executable
             echo -e "${CC_TEXT}Making the script executable...${CC_RESET}"
-            chmod +x 01--pre.sh
+            chmod +x b__fetch.sh
             check_error "Failed to set permissions. Exiting."
             echo -e "${CC_TEXT}Executable permission granted.${CC_RESET}"
             separator
