@@ -61,7 +61,7 @@ execute_if_not_unattended() {
 
 
 ########################################################################################
-
+echo "unnatended variable is -----------> $unattended"
 
 # Step labels and user prompt
 declare -A steps
@@ -161,7 +161,7 @@ for step in "${sorted_steps[@]}"; do
                 for partition in $partitions; do
                     # Ensure we are passing full /dev/ path to wipefs
                     wipefs -fa "/dev/$partition"  # Correct usage with full path for each partition
-                    check_error "Failed to wipe /dev/$partition."
+                    check_error "Failed to wipe /dev/$partition. Exiting."
                 done
             fi
             separator
@@ -192,37 +192,37 @@ for step in "${sorted_steps[@]}"; do
             echo p      # Show list of partitions
             echo w      # Write changes
             ) | fdisk --color=never /dev/$disk
-            check_error "Partitioning failed on /dev/$disk."
+            check_error "Partitioning failed on /dev/$disk. Exiting."
             echo -e "${CC_TEXT}Partitioning complete on /dev/$disk.${CC_RESET}"
             separator
 
             # Formatting the partitions
             echo -e "${CC_TEXT}Formatting /dev/${disk}1 as Ext4 (boot partition)...${CC_RESET}"
             mkfs.ext4 /dev/${disk}1
-            check_error "Failed to format /dev/${disk}1."
+            check_error "Failed to format /dev/${disk}1. Exiting."
             echo -e "${CC_TEXT}Formatting /dev/${disk}3 as Ext4 (root partition)...${CC_RESET}"
             mkfs.ext4 /dev/${disk}3
-            check_error "Failed to format /dev/${disk}3."
+            check_error "Failed to format /dev/${disk}3. Exiting."
             separator
 
             # Activating the swap partition
             echo -e "${CC_TEXT}Setting up and activating swap on /dev/${disk}2...${CC_RESET}"
             mkswap /dev/${disk}2
-            check_error "Failed to set up swap on /dev/${disk}2."
+            check_error "Failed to set up swap on /dev/${disk}2. Exiting."
             swapon /dev/${disk}2
-            check_error "Failed to activate swap on /dev/${disk}2."
+            check_error "Failed to activate swap on /dev/${disk}2. Exiting."
             separator
 
             # Mounting partitions
             echo -e "${CC_TEXT}Mounting root partition (/dev/${disk}3) to /mnt/gentoo...${CC_RESET}"
             mkdir -p /mnt/gentoo
             mount /dev/${disk}3 /mnt/gentoo
-            check_error "Failed to mount /dev/${disk}3."
+            check_error "Failed to mount /dev/${disk}3. Exiting."
 
             echo -e "${CC_TEXT}Mounting boot partition (/dev/${disk}1) to /mnt/gentoo/boot...${CC_RESET}"
             mkdir -p /mnt/gentoo/boot
             mount /dev/${disk}1 /mnt/gentoo/boot
-            check_error "Failed to mount /dev/${disk}1."
+            check_error "Failed to mount /dev/${disk}1. Exiting."
             separator
             ;;
         2)
@@ -230,7 +230,7 @@ for step in "${sorted_steps[@]}"; do
             echo -e "${CC_TEXT}Synchronizing the system clock using chronyd...${CC_RESET}"
             date
             chronyd -q
-            check_error "Failed to synchronize the system clock."
+            check_error "Failed to synchronize the system clock. Exiting."
             date
             separator
             ;;
@@ -262,7 +262,7 @@ for step in "${sorted_steps[@]}"; do
 
                 # Download the selected .tar.xz file
                 wget "${base_url}${file_name}" -P ~/
-                check_error "Failed to download the .tar.xz file."
+                check_error "Failed to download the .tar.xz file. Exiting."
                 
                 echo -e "${CC_TEXT}Downloaded ${file_name} successfully.${CC_RESET}"
             fi
@@ -271,7 +271,7 @@ for step in "${sorted_steps[@]}"; do
             echo -e "${CC_TEXT}Unpacking the Stage 3 tarball...${CC_RESET}"
             cd /mnt/gentoo
             tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
-            check_error "Failed to unpack the Stage 3 tarball."
+            check_error "Failed to unpack the Stage 3 tarball. Exiting."
             echo
             echo -e "${CC_TEXT}Unpacking complete.$disk.${CC_RESET}"
             separator 
@@ -325,7 +325,7 @@ MICROCODE_SIGNATURES="-s 0x000006fd"
 USE="-gnome -kde -xfce -bluetooth -systemd"
 EMERGE_DEFAULT_OPTS="--quiet-build=y"
 EOL
-            check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf."
+            check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf. Exiting."
 
             # Check if the distributed variable is set and append the appropriate FEATURES to make.conf
             if [[ "$distributed" -eq 0 ]]; then
@@ -334,16 +334,16 @@ EOL
 MAKEOPTS="-j$jobs"
 FEATURES="parallel-fetch"
 EOL
-            check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf."
+            check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf. Exiting."
             elif [[ "$distributed" -eq 1 ]]; then
 cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
 
 MAKEOPTS="-j$jobs -l$local_cores"
 FEATURES="parallel-fetch distcc"
 EOL
-            check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf."
+            check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf. Exiting."
             else
-                error "Error: Unknown value for distributed variable."
+                error "Error: Unknown value for distributed variable. Exiting."
                 exit 1
             fi
 
@@ -360,14 +360,14 @@ EOL
             # Copy DNS info
             echo -e "${CC_TEXT}Copying DNS information to /mnt/gentoo/etc/...${CC_RESET}"
             cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
-            check_error "Failed to copy DNS information."
+            check_error "Failed to copy DNS information. Exiting."
             separator
 
             # Copy necessary install scripts to the new system
             echo -e "${CC_TEXT}Copying installation scripts to /mnt/gentoo/root...${CC_RESET}"
             cd ~
             cp *__*.sh /mnt/gentoo/root
-            check_error "Failed to copy installation scripts."
+            check_error "Failed to copy installation scripts. Exiting."
             separator
 
             # Proceed
@@ -379,10 +379,10 @@ EOL
                 echo -e "${CC_TEXT}Entering the chroot environment...${CC_RESET}"
                 separator
                 v_unattended="$unattended" v_jobs="$jobs" v_distributed="$distributed" arch-chroot /mnt/gentoo ~/d__install.sh
-                check_error "Failed to chroot into the new environment."
+                check_error "Failed to chroot into the new environment. Exiting."
                 separator
             else
-                error "File not found."
+                error "File not found. Exiting."
                 exit 1
             fi
             ;;

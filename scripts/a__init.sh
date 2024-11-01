@@ -69,7 +69,6 @@ clear
 # Script header
 echo -e "${CC_HEADER}────── Gentoo Install Script  v0.09 ──────${CC_RESET}"
 echo
-pause
 
 # Prompt the user to choose unattended or interactive mode
 read -p "$(echo -e "${CC_TEXT}Do you want the installation process to be unattended? (y/n): ${CC_RESET}")" u_choice
