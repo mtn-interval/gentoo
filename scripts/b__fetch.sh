@@ -116,6 +116,7 @@ separator
 if [[ -f c__prepare.sh ]]; then
     echo -e "${CC_TEXT}The system is ready to proceed.${CC_RESET}"
     separator
+    export unattended
     ./c__prepare.sh
 else
     error "File not found. Exiting."
