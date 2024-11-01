@@ -270,7 +270,7 @@ for step in "${sorted_steps[@]}"; do
             # Unpacking the Stage 3 tarball
             echo -e "${CC_TEXT}Unpacking the Stage 3 tarball...${CC_RESET}"
             cd /mnt/gentoo
-            tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
+            tar xpf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
             check_error "Failed to unpack the Stage 3 tarball. Exiting."
             echo
             echo -e "${CC_TEXT}Unpacking complete.$disk.${CC_RESET}"
