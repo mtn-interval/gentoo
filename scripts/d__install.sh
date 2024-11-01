@@ -522,6 +522,7 @@ for step in "${sorted_steps[@]}"; do
                     esac
                 done
             fi
+            ;;
         14)
             # Display block device information
             echo -e "${CC_TEXT}Listing block devices with blkid...${CC_RESET}"
