@@ -25,7 +25,7 @@ separator() {
 # Function to print error messages
 error() {
     echo
-    echo -e "${CC_ERROR}$1 Exiting.${CC_RESET}"
+    echo -e "${CC_ERROR}$1${CC_RESET}"
     echo
 }
 
@@ -37,101 +37,143 @@ check_error() {
     fi
 }
 
-# Function to pause and optionally exit for debugging
-breakscript() {
-    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
-    echo -e "${CC_ERROR}  SCRIPT PAUSED. Press Enter to exit. ${CC_RESET}"
-    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
-    read -p ""
-    echo
-    exit 1
-}
 
+########################################################################################
 
 
 # Clear screen
 clear
 
 # Script header
-echo -e "${CC_HEADER}────── Gentoo Install Script  v0.08 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Gentoo Install Script  v0.09 ──────${CC_RESET}"
 echo
 pause
 
-# Set keyboard layout to Portuguese (Latin-1)
-echo -e "${CC_TEXT}Setting keyboard layout to pt-latin1...${CC_RESET}"
-loadkeys pt-latin1
-separator
+# Step labels and user prompt
+declare -A steps
+steps=(
+    [1]="Set keyboard layout"
+    [2]="Check network connection"
+    [3]="Download Fetch script"
+    # Add more steps as needed
+)
 
-# Verify network connection and perform basic network diagnostics
-echo -e "${CC_TEXT}Verifying network connection and performing basic diagnostics...${CC_RESET}"
-
-# Check the routing table
-echo -e "${CC_TEXT}Checking the routing table...${CC_RESET}"
-ip route
-check_error "Failed to retrieve routing table."
-separator
-
-# Ping a known IP address to confirm connectivity
-echo -e "${CC_TEXT}Pinging 1.1.1.1 to test connectivity...${CC_RESET}"
-ping -c 3 1.1.1.1
-check_error "Ping test failed."
-separator
-
-# Test HTTP connection to gentoo.org using curl
-echo -e "${CC_TEXT}Testing HTTP connection to gentoo.org...${CC_RESET}"
-curl --location gentoo.org --output /dev/null
-check_error "HTTP connection test to gentoo.org failed."
-separator
-
-# Display IP address information
-echo -e "${CC_TEXT}Displaying IP address information...${CC_RESET}"
-ip address show
-check_error "Failed to display IP address information."
-separator
-
-# Download the pre-install script
-echo -e "${CC_TEXT}Downloading the pre-install script...${CC_RESET}"
-while true; do
-    wget --no-cache --quiet --show-progress https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/b__pre.sh
-    if [ $? -eq 0 ]; then
-        break
-    else
-        echo -e "${CC_ERROR}Failed to download the pre-install script.${CC_RESET}"
-        while true; do
-            read -p "$(echo -e "${CC_ERROR}Would you like to try downloading again? (y/n): ${CC_RESET}")" retry_option
-            case $retry_option in
-                y|Y)
-                    echo
-                    echo -e "${CC_TEXT}Retrying download...${CC_RESET}"
-                    break
-                    ;;
-                n|N)
-                    error "Failed to download."
-                    exit 1
-                    ;;
-                *)
-                    echo
-                    echo -e "${CC_ERROR}Please enter 'y' or 'n'.${CC_RESET}"
-                    ;;
-            esac
-        done
-    fi
+# Print the index of steps
+echo "${CC_TEXT}Available Steps:${CC_RESET}"
+echo
+for step in "${!steps[@]}"; do
+    echo "[$step]: ${steps[$step]}"
 done
-separator
+echo
 
-# Make the script executable
-echo -e "${CC_TEXT}Making the script executable...${CC_RESET}"
-chmod +x 01--pre.sh
-echo -e "${CC_TEXT}Executable permission granted.${CC_RESET}"
-separator
-
-# Proceed
-if [[ -f b__fetch.sh ]]; then
-    echo -e "${CC_TEXT}The system is ready to proceed.${CC_RESET}"
-    read -p "$(echo -e "${CC_TEXT}Press Enter to continue...${CC_RESET}")"
-    separator
-    ./b__fetch.sh
+# Ask user if they want to resume
+echo "${CC_TEXT}Do you want to resume from a specific step? (y/n)${CC_RESET}"
+read -r resume_choice
+if [[ $resume_choice == "y" ]]; then
+    echo "${CC_TEXT}Enter the step number to start from (1-${#steps[@]}):${CC_RESET}"
+    read -r start_step
 else
-    error "File not found."
-    exit 1
+    start_step=1
 fi
+
+# Loop through steps
+for step in "${!steps[@]}"; do
+    # Skip steps until reaching the desired starting step
+    if (( step < start_step )); then
+        continue
+    fi
+    
+    echo "${CC_TEXT}[$step]: ${steps[$step]}${CC_RESET}"
+    
+    # Execute the corresponding commands for each step
+    case $step in
+        1)
+            # Set keyboard layout to Portuguese (Latin-1)
+            echo -e "${CC_TEXT}Setting keyboard layout to pt-latin1...${CC_RESET}"
+            loadkeys pt-latin1
+            check_error "Failed to set keyboard layout. Exiting."
+            separator
+            ;;
+        2)
+            # Verify network connection and perform basic network diagnostics
+            echo -e "${CC_TEXT}Verifying network connection and performing basic diagnostics...${CC_RESET}"
+            echo
+
+            # Check the routing table
+            echo -e "${CC_TEXT}Checking the routing table...${CC_RESET}"
+            ip route
+            check_error "Failed to retrieve routing table. Exiting."
+            separator
+
+            # Ping a known IP address to confirm connectivity
+            echo -e "${CC_TEXT}Pinging 1.1.1.1 to test connectivity...${CC_RESET}"
+            ping -c 3 1.1.1.1
+            check_error "Ping test failed. Exiting."
+            separator
+
+            # Test HTTP connection to gentoo.org using curl
+            echo -e "${CC_TEXT}Testing HTTP connection to gentoo.org...${CC_RESET}"
+            curl --location gentoo.org --output /dev/null
+            check_error "HTTP connection test to gentoo.org failed. Exiting."
+            separator
+
+            # Display IP address information
+            echo -e "${CC_TEXT}Displaying IP address information...${CC_RESET}"
+            ip address show
+            check_error "Failed to display IP address information. Exiting."
+            separator
+            ;;
+        3)
+            # Download the pre-install script
+            echo -e "${CC_TEXT}Downloading the Fetch script...${CC_RESET}"
+            while true; do
+                wget --no-cache --quiet --show-progress https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/b__fetch.sh
+                if [ $? -eq 0 ]; then
+                    break
+                else
+                    error "Failed to download the Fetch script."
+                    while true; do
+                        read -p "$(echo -e "${CC_ERROR}Would you like to try downloading again? (y/n): ${CC_RESET}")" retry_option
+                        case $retry_option in
+                            y|Y)
+                                echo
+                                echo -e "${CC_TEXT}Retrying download...${CC_RESET}"
+                                break
+                                ;;
+                            n|N)
+                                error "Failed to download. Exiting."
+                                exit 1
+                                ;;
+                            *)
+                                error "Please enter 'y' or 'n'."
+                                ;;
+                        esac
+                    done
+                fi
+            done
+            separator
+
+            # Make the script executable
+            echo -e "${CC_TEXT}Making the script executable...${CC_RESET}"
+            chmod +x 01--pre.sh
+            check_error "Failed to set permissions. Exiting."
+            echo -e "${CC_TEXT}Executable permission granted.${CC_RESET}"
+            separator
+
+            # Proceed
+            if [[ -f b__fetch.sh ]]; then
+                echo -e "${CC_TEXT}The system is ready to proceed.${CC_RESET}"
+                read -p "$(echo -e "${CC_TEXT}Press Enter to continue...${CC_RESET}")"
+                separator
+                ./b__fetch.sh
+            else
+                error "File not found. Exiting."
+                exit 1
+            fi
+            ;;
+        # Add more cases as needed
+    esac
+
+    # Delay between steps
+    pause
+done

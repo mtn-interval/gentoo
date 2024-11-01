@@ -25,7 +25,7 @@ separator() {
 # Function to print error messages
 error() {
     echo
-    echo -e "${CC_ERROR}$1 Exiting.${CC_RESET}"
+    echo -e "${CC_ERROR}$1${CC_RESET}"
     echo
 }
 
@@ -37,20 +37,12 @@ check_error() {
     fi
 }
 
-# Function to pause and optionally exit for debugging
-breakscript() {
-    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
-    echo -e "${CC_ERROR}  SCRIPT PAUSED. Press Enter to exit. ${CC_RESET}"
-    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
-    read -p ""
-    echo
-    exit 1
-}
 
+########################################################################################
 
 
 # Script header
-echo -e "${CC_HEADER}────── Fetch  v0.08 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Fetch  v0.09 ──────${CC_RESET}"
 echo
 pause
 
@@ -64,10 +56,9 @@ for file in "${files[@]}"; do
     while true; do
         wget --no-cache --quiet --show-progress "${base_url}${file}"
         if [ $? -eq 0 ]; then
-            break  # Break the loop if the download is successful
+            break
         else
-            echo
-            echo -e "${CC_ERROR}Failed to download ${file}.${CC_RESET}"
+            error "Failed to download ${file}."
             while true; do
                 read -p "$(echo -e "${CC_ERROR}Would you like to try downloading ${file} again? (y/n): ${CC_RESET}")" retry_option
                 case $retry_option in
@@ -77,12 +68,11 @@ for file in "${files[@]}"; do
                         break
                         ;;
                     n|N)
-                        error "Failed to download."
+                        error "Failed to download. Exiting."
                         exit 1
                         ;;
                     *)
-                        echo
-                        echo -e "${CC_ERROR}Please enter 'y' or 'n'.${CC_RESET}"
+                        error "Please enter 'y' or 'n'."
                         ;;
                 esac
             done
@@ -96,8 +86,10 @@ echo -e "${CC_TEXT}Making the scripts executable...${CC_RESET}"
 for file in "${files[@]}"; do
     if [[ -f $file ]]; then
         chmod +x "$file"
+        check_error "Failed to set permissions. Exiting."
     else
-        error "${file} not found."
+        error "${file} not found. Exiting."
+        exit 1
     fi
 done
 echo -e "${CC_TEXT}Executable permissions granted.${CC_RESET}"
@@ -110,6 +102,6 @@ if [[ -f c__prepare.sh ]]; then
     separator
     ./c__prepare.sh
 else
-    error "File not found."
+    error "File not found. Exiting."
     exit 1
 fi

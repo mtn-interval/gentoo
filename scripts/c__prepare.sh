@@ -25,7 +25,7 @@ separator() {
 # Function to print error messages
 error() {
     echo
-    echo -e "${CC_ERROR}$1 Exiting.${CC_RESET}"
+    echo -e "${CC_ERROR}$1${CC_RESET}"
     echo
 }
 
@@ -37,20 +37,12 @@ check_error() {
     fi
 }
 
-# Function to pause and optionally exit for debugging
-breakscript() {
-    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
-    echo -e "${CC_ERROR}  SCRIPT PAUSED. Press Enter to exit. ${CC_RESET}"
-    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
-    read -p ""
-    echo
-    exit 1
-}
 
+########################################################################################
 
 
 # Script header
-echo -e "${CC_HEADER}────── Prepare Installation  v0.08 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Prepare Installation  v0.09 ──────${CC_RESET}"
 echo
 pause
 
