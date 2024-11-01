@@ -67,7 +67,7 @@ execute_if_not_unattended() {
 clear
 
 # Script header
-echo -e "${CC_HEADER}────── Gentoo Install Script  v0.09 ──────${CC_RESET}"
+echo -e "${CC_HEADER}────── Gentoo Install Script  v0.10 ──────${CC_RESET}"
 echo
 
 # Prompt the user to choose unattended or interactive mode

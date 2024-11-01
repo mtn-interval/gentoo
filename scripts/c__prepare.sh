@@ -381,6 +381,31 @@ EOL
                 v_unattended="$unattended" v_jobs="$jobs" v_distributed="$distributed" arch-chroot /mnt/gentoo ~/d__install.sh
                 check_error "Failed to chroot into the new environment. Exiting."
                 separator
+
+                # Prompt the user to reboot or end the script
+                while true; do
+                    read -p "$(echo -e "${CC_TEXT}Would you like to reboot the system now? (y/n): ${CC_RESET}")" reboot_choice
+                    case $reboot_choice in
+                        [Yy]* )
+                            # Unmount all filesystems from /mnt/gentoo
+                            cd
+                            echo -e "${CC_TEXT}Unmounting all filesystems from /mnt/gentoo...${CC_RESET}"
+                            umount -R /mnt/gentoo
+                            check_error "Failed to unmount /mnt/gentoo. Exiting."
+                            separator
+                            echo -e "${CC_TEXT}Rebooting system...${CC_RESET}"
+                            sleep 3
+                            reboot
+                            ;;
+                        [Nn]* )
+                            echo -e "${CC_TEXT}Exiting script. System not rebooted.${CC_RESET}"
+                            exit
+                            ;;
+                        * )
+                            error "Invalid choice. Please enter 'y' or 'n'."
+                            ;;
+                    esac
+                done
             else
                 error "File not found. Exiting."
                 exit 1
