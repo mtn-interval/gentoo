@@ -217,9 +217,18 @@ for step in "${sorted_steps[@]}"; do
             echo -e "${CC_TEXT}Listing available Gentoo profiles...${CC_RESET}"
             eselect profile list
             echo
-            profile_number=$(execute_if_not_unattended "${CC_TEXT}Enter the profile number to set: ${CC_RESET}" "69")
+
+            # Check if unattended mode is enabled
+            if [[ "$unattended" -eq 1 ]]; then
+                # Capture the profile number that ends with *
+                profile_number=$(eselect profile list | grep -E '\*' | awk '{print $1}' | tr -d '[]')
+            else
+                # Prompt the user to enter the profile number if not in unattended mode
+                read -p "${CC_TEXT}Enter the profile number to set: ${CC_RESET}" profile_number
+            fi
 
             # Set the chosen profile
+            echo -e "${CC_TEXT}Setting profile number $profile_number...${CC_RESET}"
             eselect profile set "$profile_number"
             check_error "Failed to set the profile. Exiting."
             separator
