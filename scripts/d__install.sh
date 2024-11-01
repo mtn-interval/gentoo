@@ -453,25 +453,75 @@ for step in "${sorted_steps[@]}"; do
             separator 
             ;;
         12)
-            # Build the kernel
-            echo -e "${CC_TEXT}Building the kernel with make...${CC_RESET}"
-            make 
-            check_error "Kernel build failed. Exiting."
+            # Prompt the user to compile the kernel locally or remotely
+            while true; do
+                read -p "$(echo -e "${CC_TEXT}Do you wish to compile the kernel locally or remotely? (l/r): ${CC_RESET}")" compile_choice
+                case "$compile_choice" in
+                    [Ll] )
+                        echo -e "${CC_TEXT}Compiling the kernel locally...${CC_RESET}"
+                        break  # Proceed with the local compilation steps
+                        ;;
+                    [Rr] )
+                        echo -e "${CC_TEXT}Compiling the kernel remotely...${CC_RESET}"
+                        break
+                        ;;
+                    * )
+                        error "Please answer 'local' or 'remote'."
+                        ;;
+                esac
+            done
             separator
 
-            # Install kernel modules
-            echo -e "${CC_TEXT}Installing kernel modules with make modules_install...${CC_RESET}"
-            make modules_install
-            check_error "Failed to install kernel modules. Exiting."
-            separator
+            # Check if kernel compilation should be local or remote
+            if [[ "$compile_choice" =~ ^[Ll]$ ]]; then
+                # Build the kernel
+                echo -e "${CC_TEXT}Building the kernel with make...${CC_RESET}"
+                make 
+                check_error "Kernel build failed. Exiting."
+                separator
+
+                # Install kernel modules
+                echo -e "${CC_TEXT}Installing kernel modules with make modules_install...${CC_RESET}"
+                make modules_install
+                check_error "Failed to install kernel modules. Exiting."
+                separator
+            else
+                echo -e "${CC_TEXT}Skipping local kernel build and module installation (remote selected).${CC_RESET}"
+                echo -e "${CC_TEXT}Compile the kernel remotely and then transfer it back to this computer before continuing.${CC_RESET}"
+                separator
+            fi
             ;;
         13)
-            # Install the kernel
-            echo -e "${CC_TEXT}Installing the kernel with make install...${CC_RESET}"
-            make install
-            check_error "Kernel installation failed. Exiting."
-            separator
-            ;;
+            # Check if kernel installation should be local or remote
+            if [[ "$compile_choice" =~ ^[Ll]$ ]]; then
+                # Local installation of the kernel
+                echo -e "${CC_TEXT}Installing the kernel with make install...${CC_RESET}"
+                make install
+                check_error "Kernel installation failed. Exiting."
+                separator
+            else
+                # Remote installation - prompt user for confirmation
+                echo -e "${CC_TEXT}You selected remote compilation.${CC_RESET}"
+                while true; do
+                    read -p "$(echo -e "${CC_TEXT}Have you transferred the compiled kernel to this machine? Are you ready to proceed with the installation? (y/n): ${CC_RESET}")" ready_to_install
+                    case "$ready_to_install" in
+                        [Yy] )
+                            echo -e "${CC_TEXT}Installing the kernel with make install...${CC_RESET}"
+                            make install
+                            check_error "Kernel installation failed. Exiting."
+                            separator
+                            break
+                            ;;
+                        [Nn] )
+                            error "Please transfer the compiled kernel to this machine, then run the script again to complete the installation."
+                            exit 1
+                            ;;
+                        * )
+                            error "Please answer 'y' or 'n'."
+                            ;;
+                    esac
+                done
+            fi
         14)
             # Display block device information
             echo -e "${CC_TEXT}Listing block devices with blkid...${CC_RESET}"
