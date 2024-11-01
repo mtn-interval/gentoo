@@ -37,16 +37,8 @@ check_error() {
     fi
 }
 
-# Function to pause and optionally exit for debugging
-breakscript() {
-    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
-    echo -e "${CC_ERROR}  SCRIPT PAUSED. Press Enter to exit. ${CC_RESET}"
-    echo -e "${CC_ERROR}──────────────────────────────────────────────────${CC_RESET}"
-    read -p ""
-    echo
-    exit 1
-}
 
+########################################################################################
 
 
 # Script header
@@ -57,6 +49,7 @@ pause
 # Installing a Gentoo ebuild repository snapshot from the web
 echo -e "${CC_TEXT}Installing Gentoo ebuild repository snapshot using emerge-webrsync...${CC_RESET}"
 emerge-webrsync
+check_error
 if [ $? -ne 0 ]; then
     echo
     echo -e "${CC_ERROR}Failed to install Gentoo ebuild repository snapshot. Exiting.${CC_RESET}"

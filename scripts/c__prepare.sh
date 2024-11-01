@@ -235,14 +235,37 @@ for step in "${sorted_steps[@]}"; do
             separator
             ;;
         3)
-            # Downloading the Stage 3 tarball
-            echo -e "${CC_TEXT}Navigating to Gentoo mirrors to download the latest Stage 3 tarball...${CC_RESET}"
-            cd /mnt/gentoo
-            echo -e "${CC_TEXT}Launching links browser. Please navigate to the latest Stage 3 release, press 'd' to download.${CC_RESET}"
-            pause
-            links https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/releases/amd64/autobuilds/
-            echo -e "${CC_TEXT}Exiting links browser. Proceeding with the installation...${CC_RESET}"
-            separator
+            # Check the value of $unnatended
+            if [[ "$unnatended" -eq 0 ]]; then
+                # Downloading the Stage 3 tarball
+                echo -e "${CC_TEXT}Navigating to Gentoo mirrors to download the latest Stage 3 tarball...${CC_RESET}"
+                cd /mnt/gentoo
+                echo -e "${CC_TEXT}Launching links browser. Please navigate to the latest Stage 3 release, press 'd' to download.${CC_RESET}"
+                pause
+                links https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/releases/amd64/autobuilds/
+                echo -e "${CC_TEXT}Exiting links browser. Proceeding with the installation...${CC_RESET}"
+                separator
+            else
+                echo -e "${CC_TEXT}Unattended mode enabled. Downloading latest *.tar.xz file...${CC_RESET}"
+
+                # URL of the directory containing the tar.xz files
+                base_url="https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/releases/amd64/autobuilds/current-stage3-amd64-musl/"
+
+                # Fetch the list of files and filter for the one ending in .tar.xz (excluding .tar.xz.asc and similar)
+                file_name=$(curl -s "$base_url" | grep -oP 'stage3-.*?\.tar\.xz(?=")' | head -n 1)
+                
+                # Check if a file was found
+                if [[ -z "$file_name" ]]; then
+                    error "No .tar.xz file found in the specified directory. Exiting."
+                    exit 1
+                fi
+
+                # Download the selected .tar.xz file
+                wget "${base_url}${file_name}" -P /path/to/destination/
+                check_error "Failed to download the .tar.xz file."
+                
+                echo -e "${CC_TEXT}Downloaded ${file_name} successfully.${CC_RESET}"
+            fi
 
             # Unpacking the Stage 3 tarball
             echo -e "${CC_TEXT}Unpacking the Stage 3 tarball...${CC_RESET}"

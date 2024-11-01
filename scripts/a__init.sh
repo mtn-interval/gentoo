@@ -80,6 +80,7 @@ else
     unattended=0
     echo -e "${CC_TEXT}Interactive mode selected.${CC_RESET}"
 fi
+export unattended
 separator
 
 # Step labels and user prompt
@@ -196,7 +197,6 @@ for step in "${sorted_steps[@]}"; do
             # Proceed
             if [[ -f b__fetch.sh ]]; then
                 echo -e "${CC_TEXT}The system is ready to proceed.${CC_RESET}"
-                read -p "$(echo -e "${CC_TEXT}Press Enter to continue...${CC_RESET}")"
                 separator
                 ./b__fetch.sh
             else
