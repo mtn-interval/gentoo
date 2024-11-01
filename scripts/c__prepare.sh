@@ -61,7 +61,6 @@ execute_if_not_unattended() {
 
 
 ########################################################################################
-echo "unnatended variable is -----------> $unattended"
 
 # Step labels and user prompt
 declare -A steps
@@ -235,8 +234,8 @@ for step in "${sorted_steps[@]}"; do
             separator
             ;;
         3)
-            # Check the value of $unnatended
-            if [[ "$unnatended" -eq 0 ]]; then
+            # Check the value of $unattended
+            if [[ "$unattended" -eq 0 ]]; then
                 # Downloading the Stage 3 tarball
                 echo -e "${CC_TEXT}Navigating to Gentoo mirrors to download the latest Stage 3 tarball...${CC_RESET}"
                 cd /mnt/gentoo
