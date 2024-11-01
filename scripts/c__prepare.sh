@@ -261,7 +261,7 @@ for step in "${sorted_steps[@]}"; do
                 fi
 
                 # Download the selected .tar.xz file
-                wget "${base_url}${file_name}" -P ~/
+                wget "${base_url}${file_name}" -P /mnt/gentoo
                 check_error "Failed to download the .tar.xz file. Exiting."
                 
                 echo -e "${CC_TEXT}Downloaded ${file_name} successfully.${CC_RESET}"
