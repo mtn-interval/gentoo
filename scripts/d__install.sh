@@ -68,24 +68,24 @@ declare -A steps
 steps=(
     [1]="Sync repository"
     [2]="Configure COMMON_FLAGS"
-    [3]="Configure distributed compiling"
-    [4]="Select Gentoo profile"
-    [5]="Update @world set"
-    [6]="Set timezone and locale"
-    [7]="Install firmware"
-    [8]="Configure installkernel"
-    [9]="Install Gentoo kernel sources"
-    [10]="Collect system information"
-    [11]="Configure the kernel"
-    [12]="Compile the kernel"
-    [13]="Install the kernel"
-    [14]="Configure fstab"
-    [15]="Configure network"
-    [16]="Configure system"
-    [17]="Set the root password"
-    [18]="Install basic services and tools"
-    [19]="Install GRUB"
-    [20]="Set up new user"
+    [3]="Select Gentoo profile"
+    [4]="Update @world set"
+    [5]="Set timezone and locale"
+    [6]="Install firmware"
+    [7]="Configure installkernel"
+    [8]="Install Gentoo kernel sources"
+    [9]="Collect system information"
+    [10]="Configure the kernel"
+    [11]="Compile the kernel"
+    [12]="Install the kernel"
+    [13]="Configure fstab"
+    [14]="Configure network"
+    [15]="Configure system"
+    [16]="Set the root password"
+    [17]="Install basic services and tools"
+    [18]="Install GRUB"
+    [19]="Set up new user"
+    [20]="Install tools"
     [21]="Clean up"
     [22]="Exit chroot environment"
     # Add more steps as needed
@@ -174,45 +174,6 @@ for step in "${sorted_steps[@]}"; do
             separator
             ;;
         3)
-            # Check if distributed compiling is enabled
-            if [[ "$v_distributed" -eq 1 ]]; then
-                echo -e "${CC_TEXT}Distributed compiling enabled. Setting up distcc...${CC_RESET}"
-
-                # Install distcc
-                emerge sys-devel/distcc
-                check_error "Failed to install distcc. Exiting."
-
-                # Add distccd to default runlevel and start the service
-                rc-update add distccd default
-                check_error "Failed to add distccd to default runlevel. Exiting."
-                # rc-service distccd start
-                # check_error "Failed to start distccd. Exiting"
-
-                # Prompt user for the distribution host's IP address
-                read -p "$(echo -e "${CC_TEXT}Enter the IP address of the distribution host: ${CC_RESET}")" distcc_host_ip
-
-                # Prompt the user if they want localhost to participate
-                read -p "$(echo -e "${CC_TEXT}Should localhost participate in distributed compiling? (y/n): ${CC_RESET}")" use_localhost
-                if [[ "$use_localhost" =~ ^[Yy]$ ]]; then
-                    /usr/bin/distcc-config --set-hosts "localhost $distcc_host_ip"
-                    check_error "Failed to set distcc hosts with localhost included. Exiting."
-                    echo -e "${CC_TEXT}Configured distcc with localhost and distribution host ${distcc_host_ip}.${CC_RESET}"
-                else
-                    /usr/bin/distcc-config --set-hosts "$distcc_host_ip"
-                    check_error "Failed to set distcc hosts without localhost. Exiting."
-                    echo -e "${CC_TEXT}Configured distcc with distribution host ${distcc_host_ip} only.${CC_RESET}"
-                fi
-
-                # # Add distcc to PATH
-                # export PATH="/usr/lib/distcc/bin:${PATH}"
-                # echo -e "${CC_TEXT}distcc configured successfully and PATH updated.${CC_RESET}"
-
-            else
-                echo -e "${CC_TEXT}Distributed compiling is disabled. Skipping distcc setup.${CC_RESET}"
-            fi
-            separator
-            ;;
-        4)
             # Choosing the right Gentoo profile
             echo -e "${CC_TEXT}Listing available Gentoo profiles...${CC_RESET}"
             eselect profile list
@@ -233,7 +194,7 @@ for step in "${sorted_steps[@]}"; do
             check_error "Failed to set the profile. Exiting."
             separator
             ;;
-        5)
+        4)
             # Prompt user to update the @world set
             update_world=$(execute_if_not_unattended "${CC_TEXT}Do you want to update the @world set? (y/n): ${CC_RESET}" "y")
             if [[ "$update_world" =~ ^[Yy]$ ]]; then
@@ -256,7 +217,7 @@ for step in "${sorted_steps[@]}"; do
             fi
             separator
             ;;
-        6)
+        5)
             # Detect if the Stage 3 tarball filename in root contains "musl"
             stage3_tarball=$(ls /stage3-*.tar.* 2>/dev/null | head -n 1)  # Detect the tarball file in the root directory
 
@@ -335,7 +296,7 @@ for step in "${sorted_steps[@]}"; do
                 separator
             fi 
             ;;
-        7)
+        6)
             # Prompt the user if they want to install linux-firmware
             install_linux_firmware=$(execute_if_not_unattended "${CC_TEXT}Would you like to install linux-firmware? (y/n): ${CC_RESET}" "y")
             if [[ "$install_linux_firmware" =~ ^[Yy]$ ]]; then
@@ -360,9 +321,9 @@ for step in "${sorted_steps[@]}"; do
             fi
             separator
             ;;
-        8)
-            # Configure installkernel to use GRUB
-            echo -e "${CC_TEXT}Configuring installkernel to use GRUB...${CC_RESET}"
+        7)
+            # Configure installkernel to use GRUB and Dracut
+            echo -e "${CC_TEXT}Configuring installkernel to use GRUB and Dracut...${CC_RESET}"
             echo "sys-kernel/installkernel grub dracut" > /etc/portage/package.use/installkernel
             check_error "Failed to configure installkernel for GRUB. Exiting."
             separator
@@ -373,7 +334,7 @@ for step in "${sorted_steps[@]}"; do
             check_error "Failed to install sys-kernel/installkernel. Exiting."
             separator
             ;;
-        9)
+        8)
             # Install Gentoo kernel sources
             echo -e "${CC_TEXT}Installing Gentoo kernel sources...${CC_RESET}"
             emerge sys-kernel/gentoo-sources
@@ -422,8 +383,20 @@ for step in "${sorted_steps[@]}"; do
                 echo -e "${CC_TEXT}Skipping installation of dev-util/pahole.${CC_RESET}"
             fi
             separator
+            
+            # Prompt the user if they want to install app-arch/lz4
+            install_lz4=$(execute_if_not_unattended "${CC_TEXT}Would you like to install app-arch/lz4? (y/n): ${CC_RESET}" "y")
+            if [[ "$install_lz4" =~ ^[Yy]$ ]]; then
+                echo -e "${CC_TEXT}Installing app-arch/lz4...${CC_RESET}"
+                emerge app-arch/lz4
+                check_error "Failed to install app-arch/lz4. Exiting."
+                echo -e "${CC_TEXT}app-arch/lz4 installed successfully.${CC_RESET}"
+            else
+                echo -e "${CC_TEXT}Skipping installation of app-arch/lz4.${CC_RESET}"
+            fi
+            separator
             ;;
-        10)
+        9)
             # Install pciutils package
             echo -e "${CC_TEXT}Installing pciutils package for lspci command...${CC_RESET}"
             emerge sys-apps/pciutils
@@ -447,21 +420,35 @@ for step in "${sorted_steps[@]}"; do
             echo -e "${CC_TEXT}System information has been saved to ~/system_info directory.${CC_RESET}"
             separator
             ;;
-        11)
-            # Generate a minimal kernel configuration based on loaded modules
-            echo -e "${CC_TEXT}Generating a minimal kernel configuration based on currently loaded modules with make localmodconfig...${CC_RESET}"
-            cd /usr/src/linux
-            make localmodconfig
-            check_error "Failed to generate minimal kernel configuration. Exiting."
-            separator
+        10)
+            # Prompt the user to choose between using a pre-configured .config or manual configuration
+            config_choice=$(execute_if_not_unattended "${CC_TEXT}Would you like to use a pre-configured .config file? (y/n): ${CC_RESET}" "y")
+            
+            if [[ "$config_choice" =~ ^[Pp] ]]; then
+                # Copy the pre-configured .config file
+                echo -e "${CC_TEXT}Using pre-configured .config file...${CC_RESET}"
+                cp .config /usr/src/linux/
+                cd /usr/src/linux
+                make olddefconfig
+                check_error "Failed to copy pre-configured .config file to /usr/src/linux. Exiting."
+                echo -e "${CC_TEXT}Pre-configured .config file copied successfully.${CC_RESET}"
+                separator
+            else
+                # Generate a minimal kernel configuration based on loaded modules
+                echo -e "${CC_TEXT}Generating a minimal kernel configuration based on currently loaded modules with make localmodconfig...${CC_RESET}"
+                cd /usr/src/linux
+                make localmodconfig
+                check_error "Failed to generate minimal kernel configuration. Exiting."
+                separator
 
-            # Open the kernel configuration menu for customization
-            echo -e "${CC_TEXT}Opening kernel configuration menu with make nconfig...${CC_RESET}"
-            make nconfig
-            check_error "Failed to open kernel configuration menu. Exiting."
-            separator 
+                # Open the kernel configuration menu for customization
+                echo -e "${CC_TEXT}Opening kernel configuration menu with make nconfig...${CC_RESET}"
+                make nconfig
+                check_error "Failed to open kernel configuration menu. Exiting."
+                separator 
+            fi
             ;;
-        12)
+        11)
             # Prompt the user to compile the kernel locally or remotely
             while true; do
                 read -p "$(echo -e "${CC_TEXT}Do you wish to compile the kernel locally or remotely? (l/r): ${CC_RESET}")" compile_choice
@@ -500,7 +487,7 @@ for step in "${sorted_steps[@]}"; do
                 separator
             fi
             ;;
-        13)
+        12)
             # Check if kernel installation should be local or remote
             if [[ "$compile_choice" =~ ^[Ll]$ ]]; then
                 # Local installation of the kernel
@@ -532,7 +519,7 @@ for step in "${sorted_steps[@]}"; do
                 done
             fi
             ;;
-        14)
+        13)
             # Display block device information
             echo -e "${CC_TEXT}Listing block devices with blkid...${CC_RESET}"
             blkid
@@ -577,7 +564,7 @@ for step in "${sorted_steps[@]}"; do
             fi
             separator
             ;;
-        15)
+        14)
             # Prompt user for the hostname
             while true; do
                 user_hostname=$(execute_if_not_unattended "${CC_TEXT}Please enter the hostname for this system: ${CC_RESET}" "thinkpad")
@@ -612,12 +599,21 @@ for step in "${sorted_steps[@]}"; do
             separator
 
             # Write network configuration to /etc/conf.d/net
+            rm -f /etc/conf.d/net
+            check_error "Failed to clean /etc/conf.d/net. Exiting."
             echo -e "${CC_TEXT}Configuring network settings for $ethernet_device...${CC_RESET}"
-            {
-                echo "config_$ethernet_device=\"11.0.0.10/24\""
-                echo "routes_$ethernet_device=\"default via 11.0.0.1\""
-            } > /etc/conf.d/net
+            cat <<EOL >> /etc/conf.d/net
 
+# Ethernet
+
+# Using DHCP
+#config_$ethernet_device="dhcp"
+
+# Using Static IP
+config_$ethernet_device="11.0.0.201/24"
+routes_$ethernet_device="default via 11.0.0.1"
+dns_servers_$ethernet_device="8.8.8.8 8.8.4.4"
+EOL
             check_error "Failed to write network configuration to /etc/conf.d/net. Exiting."
             echo -e "${CC_TEXT}Network configuration for $ethernet_device added to /etc/conf.d/net successfully.${CC_RESET}"
             separator
@@ -657,7 +653,7 @@ for step in "${sorted_steps[@]}"; do
                 separator
             fi 
             ;;
-        16)
+        15)
             # Prompt the user to edit /etc/rc.conf
             edit_rcconf=$(execute_if_not_unattended "${CC_TEXT}Would you like to edit /etc/rc.conf? (y/n): ${CC_RESET}" "n")
             if [[ "$edit_rcconf" =~ ^[Yy]$ ]]; then
@@ -690,7 +686,7 @@ for step in "${sorted_steps[@]}"; do
                 separator
             fi
             ;;
-        17)
+        16)
             # Set the root password
             echo -e "${CC_TEXT}Setting root password...${CC_RESET}"
             passwd
@@ -698,7 +694,7 @@ for step in "${sorted_steps[@]}"; do
             echo -e "${CC_TEXT}Root password has been set successfully.${CC_RESET}"
             separator
             ;;
-        18)
+        17)
             # Prompt to install and add sysklogd to default runlevel
             install_sysklogd=$(execute_if_not_unattended "${CC_TEXT}Would you like to install app-admin/sysklogd? (y/n): ${CC_RESET}" "n")
             if [[ "$install_sysklogd" =~ ^[Yy]$ ]]; then
@@ -781,7 +777,7 @@ for step in "${sorted_steps[@]}"; do
                 separator
             fi 
             ;;
-        19)
+        18)
             # Install GRUB to the selected disk
             echo -e "${CC_TEXT}Installing GRUB on /dev/${disk_choice}...${CC_RESET}"
             grub-install /dev/"$disk_choice"
@@ -795,6 +791,7 @@ for step in "${sorted_steps[@]}"; do
                 echo "GRUB_GFXMODE=1280x800"
                 echo "GRUB_GFXPAYLOAD_LINUX=keep"
                 echo "GRUB_DISABLE_OS_PROBER=false"
+                echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet"'
             } >> /etc/default/grub
             check_error "Failed to update /etc/default/grub. Exiting."
             separator
@@ -815,7 +812,7 @@ for step in "${sorted_steps[@]}"; do
             echo -e "${CC_TEXT}GRUB installation and configuration completed successfully.${CC_RESET}"
             separator
             ;;
-        20)
+        19)
             # Prompt the user for a new username
             while true; do
                 read -p "$(echo -e "${CC_TEXT}Please enter a username for the new user: ${CC_RESET}")" new_username
@@ -852,7 +849,151 @@ for step in "${sorted_steps[@]}"; do
             check_error "Failed to configure sudo permissions. Exiting."
             separator
             ;;
+        20)
+            # Prompt the user if they want to install app-portage/gentoolkit
+            install_gentoolkit=$(execute_if_not_unattended "${CC_TEXT}Would you like to install app-portage/gentoolkit? (y/n): ${CC_RESET}" "y")
+            if [[ "$install_gentoolkit" =~ ^[Yy]$ ]]; then
+                echo -e "${CC_TEXT}Installing app-portage/gentoolkit...${CC_RESET}"
+                emerge app-portage/gentoolkit
+                check_error "Failed to install app-portage/gentoolkit. Exiting."
+                echo -e "${CC_TEXT}app-portage/gentoolkit installed successfully.${CC_RESET}"
+            else
+                echo -e "${CC_TEXT}Skipping installation of app-portage/gentoolkit.${CC_RESET}"
+            fi
+            separator
+
+            # Prompt the user if they want to install sys-process/htop
+            install_htop=$(execute_if_not_unattended "${CC_TEXT}Would you like to install sys-process/htop? (y/n): ${CC_RESET}" "y")
+            if [[ "$install_htop" =~ ^[Yy]$ ]]; then
+                echo -e "${CC_TEXT}Installing sys-process/htop...${CC_RESET}"
+                emerge sys-process/htop
+                check_error "Failed to install sys-process/htop. Exiting."
+                echo -e "${CC_TEXT}sys-process/htop installed successfully.${CC_RESET}"
+            else
+                echo -e "${CC_TEXT}Skipping installation of sys-process/htop.${CC_RESET}"
+            fi
+            separator
+
+            # Prompt the user if they want to install app-portage/emlop
+            install_emlop=$(execute_if_not_unattended "${CC_TEXT}Would you like to install app-portage/emlop? (y/n): ${CC_RESET}" "y")
+            if [[ "$install_emlop" =~ ^[Yy]$ ]]; then
+                echo -e "${CC_TEXT}Installing app-portage/emlop...${CC_RESET}"
+                emerge app-portage/emlop
+                check_error "Failed to install app-portage/emlop. Exiting."
+                echo -e "${CC_TEXT}app-portage/emlop installed successfully.${CC_RESET}"
+            else
+                echo -e "${CC_TEXT}Skipping installation of app-portage/emlop.${CC_RESET}"
+            fi
+            separator
+
+            # Prompt the user if they want to install app-misc/tmux
+            install_tmux=$(execute_if_not_unattended "${CC_TEXT}Would you like to install app-misc/tmux? (y/n): ${CC_RESET}" "y")
+            if [[ "$install_tmux" =~ ^[Yy]$ ]]; then
+                echo -e "${CC_TEXT}Installing app-misc/tmux...${CC_RESET}"
+                emerge app-misc/tmux
+                check_error "Failed to install app-misc/tmux. Exiting."
+                echo -e "${CC_TEXT}app-misc/tmux installed successfully.${CC_RESET}"
+            else
+                echo -e "${CC_TEXT}Skipping installation of app-misc/tmux.${CC_RESET}"
+            fi
+            separator
+
+            # Prompt the user if they want to install dev-vcs/git
+            install_git=$(execute_if_not_unattended "${CC_TEXT}Would you like to install dev-vcs/git? (y/n): ${CC_RESET}" "y")
+            if [[ "$install_git" =~ ^[Yy]$ ]]; then
+                echo -e "${CC_TEXT}Installing dev-vcs/git...${CC_RESET}"
+                emerge dev-vcs/git
+                check_error "Failed to install dev-vcs/git. Exiting."
+                echo -e "${CC_TEXT}dev-vcs/git installed successfully.${CC_RESET}"
+            else
+                echo -e "${CC_TEXT}Skipping installation of dev-vcs/git.${CC_RESET}"
+            fi
+            separator
+
+            # Prompt the user if they want to install app-editors/vim
+            install_vim=$(execute_if_not_unattended "${CC_TEXT}Would you like to install app-editors/vim? (y/n): ${CC_RESET}" "y")
+            if [[ "$install_vim" =~ ^[Yy]$ ]]; then
+                echo -e "${CC_TEXT}Installing app-editors/vim...${CC_RESET}"
+                emerge app-editors/vim
+                check_error "Failed to install app-editors/vim. Exiting."
+                echo -e "${CC_TEXT}app-editors/vim installed successfully.${CC_RESET}"
+            else
+                echo -e "${CC_TEXT}Skipping installation of app-editors/vim.${CC_RESET}"
+            fi
+            separator
+
+            # Prompt the user if they want to install app-shells/zsh
+            install_zsh=$(execute_if_not_unattended "${CC_TEXT}Would you like to install app-shells/zsh? (y/n): ${CC_RESET}" "y")
+            if [[ "$install_zsh" =~ ^[Yy]$ ]]; then
+                echo -e "${CC_TEXT}Installing app-shells/zsh...${CC_RESET}"
+                emerge app-shells/zsh
+                check_error "Failed to install app-shells/zsh. Exiting."
+                echo -e "${CC_TEXT}app-shells/zsh installed successfully.${CC_RESET}"
+
+                # Change default shell for both root and the new user
+                echo -e "${CC_TEXT}Setting zsh as the default shell for root and $new_username...${CC_RESET}"
+                chsh -s /usr/bin/zsh root
+                check_error "Failed to set zsh as the default shell for root. Exiting."
+                chsh -s /usr/bin/zsh "$new_username"
+                check_error "Failed to set zsh as the default shell for $new_username. Exiting."
+
+                # Prompt the user if they want to install app-shells/gentoo-zsh-completions
+                install_zsh_completions=$(execute_if_not_unattended "${CC_TEXT}Would you like to install app-shells/gentoo-zsh-completions? (y/n): ${CC_RESET}" "y")
+                if [[ "$install_zsh_completions" =~ ^[Yy]$ ]]; then
+                    echo -e "${CC_TEXT}Installing app-shells/gentoo-zsh-completions...${CC_RESET}"
+                    emerge app-shells/gentoo-zsh-completions
+                    check_error "Failed to install app-shells/gentoo-zsh-completions. Exiting."
+                    echo -e "${CC_TEXT}app-shells/gentoo-zsh-completions installed successfully.${CC_RESET}"
+
+                    # Check and configure ~/.zshrc for root
+                    if [[ ! -f ~/.zshrc ]]; then
+                        echo -e "${CC_TEXT}Creating .zshrc file for root...${CC_RESET}"
+                        touch ~/.zshrc
+                        check_error "Failed to create .zshrc for root. Exiting."
+                    fi
+                    echo -e "${CC_TEXT}Configuring zsh completions and prompt in root's .zshrc...${CC_RESET}"
+                    cat <<EOL >> ~/.zshrc
+autoload -U compinit promptinit
+compinit
+promptinit; prompt gentoo
+EOL
+                    check_error "Failed to configure root's .zshrc. Exiting."
+
+                    # Check and configure /home/$new_username/.zshrc for the new user
+                    if [[ ! -f /home/$new_username/.zshrc ]]; then
+                        echo -e "${CC_TEXT}Creating .zshrc file for $new_username...${CC_RESET}"
+                        touch /home/$new_username/.zshrc
+                        check_error "Failed to create .zshrc for $new_username. Exiting."
+                        chown "$new_username":"$new_username" /home/$new_username/.zshrc
+                    fi
+                    echo -e "${CC_TEXT}Configuring zsh completions and prompt in $new_username's .zshrc...${CC_RESET}"
+                    cat <<EOL >> /home/$new_username/.zshrc
+autoload -U compinit promptinit
+compinit
+promptinit; prompt gentoo
+EOL
+                    check_error "Failed to configure $new_username's .zshrc. Exiting."
+                    echo -e "${CC_TEXT}.zshrc configured successfully for both root and $new_username.${CC_RESET}"
+                else
+                    echo -e "${CC_TEXT}Skipping installation of app-shells/gentoo-zsh-completions.${CC_RESET}"
+                fi
+            else
+                echo -e "${CC_TEXT}Skipping installation of app-shells/zsh.${CC_RESET}"
+            fi
+            separator
+            ;;
         21)
+            # Comment out lines ending with tty4 linux, tty5 linux, and tty6 linux in /etc/inittab
+            echo -e "${CC_TEXT}Removing extra ttys in /etc/inittab...${CC_RESET}"
+            sed -i '/tty4 linux$/s/^/#/' /etc/inittab
+            check_error "Failed to comment out line ending with tty4 linux in /etc/inittab. Exiting."
+            sed -i '/tty5 linux$/s/^/#/' /etc/inittab
+            check_error "Failed to comment out line ending with tty5 linux in /etc/inittab. Exiting."
+            sed -i '/tty6 linux$/s/^/#/' /etc/inittab
+            check_error "Failed to comment out line ending with tty6 linux in /etc/inittab. Exiting."
+            separator
+
+
             # Remove the Stage 3 tarball
             echo -e "${CC_TEXT}Removing the Stage 3 tarball...${CC_RESET}"
             rm /stage3-*.tar.*

@@ -277,35 +277,12 @@ for step in "${sorted_steps[@]}"; do
             separator 
             ;;
         4)
-            # Prompt the user to enable or disable Distributed Compiling
-            use_distributed=$(execute_if_not_unattended "${CC_TEXT}Would you like to use Distributed Compiling? (y/n): ${CC_RESET}" "n")
+            # Ask for local cores only
+            local_cores=$(execute_if_not_unattended "${CC_TEXT}Enter the number of local CPU cores: ${CC_RESET}" "2")
 
-            if [[ "$use_distributed" =~ ^[Yy]$ ]]; then
-                distributed=1
-                echo -e "${CC_TEXT}Distributed Compiling enabled.${CC_RESET}"
-                
-                # Ask for local and remote cores
-                read -p "$(echo -e "${CC_TEXT}Enter the number of local CPU cores: ${CC_RESET}")" local_cores
-                read -p "$(echo -e "${CC_TEXT}Enter the number of remote CPU cores: ${CC_RESET}")" remote_cores
-
-                # Calculate total jobs
-                jobs=$(( (2 * (local_cores + remote_cores)) + 1 ))
-                echo -e "${CC_TEXT}Jobs set to: $jobs${CC_RESET}"
-            else
-                distributed=0
-                echo -e "${CC_TEXT}Distributed Compiling disabled.${CC_RESET}"
-                
-                # Ask for local cores only
-                local_cores=$(execute_if_not_unattended "${CC_TEXT}Enter the number of local CPU cores: ${CC_RESET}" "2")
-
-                # Set jobs to local cores
-                jobs=$local_cores
-                echo -e "${CC_TEXT}Jobs set to: $jobs${CC_RESET}"
-            fi
-
-            # Export the variable to make it available to other scripts
-            export distributed
-            separator
+            # Set jobs to local cores
+            jobs=$local_cores
+            echo -e "${CC_TEXT}Jobs set to: $jobs${CC_RESET}"
 
             # Configuring compile options in make.conf
             echo -e "${CC_TEXT}Configuring compile options in /mnt/gentoo/etc/portage/make.conf...${CC_RESET}"
@@ -314,38 +291,26 @@ for step in "${sorted_steps[@]}"; do
             cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
 
 # CUSTOM ThinkPad
-
-GENTOO_MIRRORS="https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/"
+    
 ACCEPT_LICENSE="*"
+
+GENTOO_MIRRORS="https://mirrors.ptisp.pt/gentoo/ \
+    https://ftp.rnl.tecnico.ulisboa.pt/pub/gentoo/gentoo-distfiles/ \
+    http://ftp.dei.uc.pt/pub/linux/gentoo/ \
+    https://repo.ifca.es/gentoo-distfiles \
+    https://gentoo.mirrors.ovh.net/gentoo-distfiles/ \
+    https://ftp.agdsn.de/gentoo"
 
 VIDEO_CARDS="intel"
 INPUT_DEVICES="libinput synaptics"
 CPU_FLAGS_X86="mmx mmxext sse sse2 sse3 ssse3"
 MICROCODE_SIGNATURES="-s 0x000006fd"
-USE="-gnome -kde -xfce -bluetooth -systemd"
-EMERGE_DEFAULT_OPTS="--quiet-build=y"
-EOL
-            check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf. Exiting."
-
-            # Check if the distributed variable is set and append the appropriate FEATURES to make.conf
-            if [[ "$distributed" -eq 0 ]]; then
-            cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
-
-MAKEOPTS="-j$jobs"
+USE="wayland alsa -X -gnome -kde -xfce -bluetooth -systemd -ipv6"
 FEATURES="parallel-fetch"
+EMERGE_DEFAULT_OPTS="-j$jobs --quiet-build=y"
+MAKEOPTS="-j$jobs"
 EOL
             check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf. Exiting."
-            elif [[ "$distributed" -eq 1 ]]; then
-cat <<EOL >> /mnt/gentoo/etc/portage/make.conf
-
-MAKEOPTS="-j$jobs -l$local_cores"
-FEATURES="parallel-fetch distcc"
-EOL
-            check_error "Failed to configure /mnt/gentoo/etc/portage/make.conf. Exiting."
-            else
-                error "Error: Unknown value for distributed variable. Exiting."
-                exit 1
-            fi
 
             # Prompt user to make changes to make.conf
             change_conf=$(execute_if_not_unattended "${CC_TEXT}Do you want to make any changes to /mnt/gentoo/etc/portage/make.conf? (y/n): ${CC_RESET}" "n")
@@ -367,6 +332,7 @@ EOL
             echo -e "${CC_TEXT}Copying installation scripts to /mnt/gentoo/root...${CC_RESET}"
             cd ~
             cp *__*.sh /mnt/gentoo/root
+            cp .config /mnt/gentoo/root
             check_error "Failed to copy installation scripts. Exiting."
             separator
 
@@ -378,7 +344,7 @@ EOL
                 # Change root into the new environment and run the chroot script
                 echo -e "${CC_TEXT}Entering the chroot environment...${CC_RESET}"
                 separator
-                v_unattended="$unattended" v_jobs="$jobs" v_distributed="$distributed" arch-chroot /mnt/gentoo ~/d__install.sh
+                v_unattended="$unattended" v_jobs="$jobs" arch-chroot /mnt/gentoo ~/d__install.sh
                 check_error "Failed to chroot into the new environment. Exiting."
                 separator
 

@@ -65,7 +65,7 @@ execute_if_not_unattended() {
 
 # Define Mountain Interval repository
 base_url="https://raw.githubusercontent.com/mtn-interval/gentoo/main/scripts/"
-files=("c__prepare.sh" "d__install.sh")
+files=("c__prepare.sh" "d__install.sh" ".config")
 
 # Download each script from GitHub
 for file in "${files[@]}"; do
@@ -98,18 +98,20 @@ for file in "${files[@]}"; do
 done
 separator
 
-# Make the downloaded scripts executable
-echo -e "${CC_TEXT}Making the scripts executable...${CC_RESET}"
+# Make the downloaded scripts with .sh extension executable
+echo -e "${CC_TEXT}Making the .sh scripts executable...${CC_RESET}"
 for file in "${files[@]}"; do
-    if [[ -f $file ]]; then
+    if [[ -f $file && $file == *.sh ]]; then
         chmod +x "$file"
-        check_error "Failed to set permissions. Exiting."
+        check_error "Failed to set executable permissions for $file. Exiting."
+    elif [[ -f $file ]]; then
+        echo -e "${CC_TEXT}Skipping non-.sh file: $file${CC_RESET}"
     else
         error "${file} not found. Exiting."
         exit 1
     fi
 done
-echo -e "${CC_TEXT}Executable permissions granted.${CC_RESET}"
+echo -e "${CC_TEXT}Executable permissions granted for .sh scripts.${CC_RESET}"
 separator
 
 # Proceed
