@@ -199,7 +199,7 @@ for step in "${sorted_steps[@]}"; do
             update_world=$(execute_if_not_unattended "${CC_TEXT}Do you want to update the @world set? (y/n): ${CC_RESET}" "y")
             if [[ "$update_world" =~ ^[Yy]$ ]]; then
                 echo -e "${CC_TEXT}Updating the @world set...${CC_RESET}"
-                emerge --verbose --update --deep --changed-use @world
+                emerge -j$v_jobs --verbose --update --deep --changed-use @world
                 check_error "Failed to update the @world set. Exiting."
 
                 # Clean up unnecessary dependencies after the @world update
@@ -714,6 +714,7 @@ EOL
             if [[ "$install_cronie" =~ ^[Yy]$ ]]; then
                 echo -e "${CC_TEXT}Installing cronie...${CC_RESET}"
                 emerge sys-process/cronie
+                rc-update add cronie default
                 check_error "Failed to install cronie. Exiting."
                 separator
             fi
@@ -746,6 +747,7 @@ EOL
             if [[ "$install_chrony" =~ ^[Yy]$ ]]; then
                 echo -e "${CC_TEXT}Installing chrony...${CC_RESET}"
                 emerge net-misc/chrony
+                rc-update add chronyd default
                 check_error "Failed to install chrony. Exiting."
                 separator
             fi
